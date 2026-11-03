@@ -1,3 +1,341 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#14221d">
+<title>Mit vegyek fel ma?</title>
+
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #14221d;
+  --panel: #202b27;
+  --panel2: #293630;
+  --primary: #315c50;
+  --secondary: #294239;
+  --text: #ffffff;
+  --muted: #bdc9c2;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, sans-serif;
+}
+.app {
+  min-height: 100vh;
+  padding: 20px;
+}
+.shell {
+  width: min(100%, 760px);
+  margin: auto;
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0 22px;
+}
+.brand {
+  font-weight: bold;
+  font-size: 17px;
+}
+.pill {
+  border: 1px solid #526158;
+  border-radius: 30px;
+  padding: 8px 12px;
+  font-size: 11px;
+}
+.hero {
+  background: var(--primary);
+  border-radius: 25px;
+  padding: 28px;
+}
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: 2px;
+  opacity: .8;
+}
+h1 {
+  font-family: Georgia, serif;
+  font-size: clamp(28px, 6vw, 38px);
+  line-height: 1.1;
+  margin: 12px 0;
+}
+.sub {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #e4eee8;
+}
+.controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 18px 0;
+}
+.field, .metric, .period-card, .recommend {
+  background: var(--panel);
+  border: 1px solid #3a4841;
+  border-radius: 17px;
+}
+.field {
+  padding: 13px;
+}
+label {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+input, button {
+  font: inherit;
+}
+input {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  outline: none;
+  color: white;
+  font-size: 16px;
+}
+.weather {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 18px 0;
+}
+.metric {
+  padding: 15px;
+  min-width: 0;
+}
+.metric .icon {
+  font-size: 22px;
+}
+.metric strong {
+  display: block;
+  font-size: 23px;
+  margin: 8px 0;
+}
+.metric small {
+  color: var(--muted);
+  font-size: 11px;
+}
+.section-title {
+  font: bold 25px Georgia, serif;
+  margin: 28px 0 14px;
+}
+.recommend {
+  overflow: hidden;
+}
+.recommend-head {
+  padding: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.recommend-head h2 {
+  font-size: 17px;
+  margin: 0;
+}
+.tag {
+  background: var(--secondary);
+  border-radius: 30px;
+  padding: 7px 10px;
+  font-size: 11px;
+}
+.outfit {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 0 14px 15px;
+}
+.item {
+  background: var(--panel2);
+  border-radius: 14px;
+  padding: 14px;
+  min-height: 110px;
+}
+.item .emoji {
+  font-size: 26px;
+}
+.item b {
+  display: block;
+  margin: 8px 0 4px;
+  font-size: 14px;
+}
+.item span {
+  font-size: 12px;
+  color: var(--muted);
+}
+.period-grid {
+  display: grid;
+  gap: 10px;
+}
+.period-card {
+  padding: 16px;
+}
+.period-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.period-head h3 {
+  margin: 0;
+  font-size: 16px;
+}
+.period-meta {
+  font-size: 12px;
+  color: var(--muted);
+}
+.period-advice {
+  font-size: 13px;
+  line-height: 1.5;
+  margin-top: 9px;
+}
+.tip {
+  background: var(--secondary);
+  padding: 17px;
+  border-radius: 17px;
+  margin-top: 15px;
+  line-height: 1.5;
+  font-size: 13px;
+}
+.actions {
+  display: flex;
+  gap: 10px;
+  margin: 18px 0;
+}
+button {
+  border: 0;
+  border-radius: 13px;
+  padding: 14px;
+  cursor: pointer;
+  font-weight: bold;
+}
+.primary {
+  background: var(--primary);
+  color: white;
+  flex: 1;
+}
+.secondary {
+  background: var(--secondary);
+  color: white;
+}
+.status {
+  min-height: 20px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+footer {
+  text-align: center;
+  padding: 22px 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+@media(max-width:520px) {
+  .app { padding: 14px; }
+  .controls { gap: 8px; }
+  .metric { padding: 11px 8px; }
+  .metric strong { font-size: 19px; }
+  .actions { flex-wrap: wrap; }
+}
+</style>
+</head>
+
+<body>
+<main class="app">
+<div class="shell">
+
+<header>
+  <div class="brand">☀ Mit vegyek fel ma?</div>
+  <div class="pill">NAPI ÖLTÖZKÖDÉSI TIPP</div>
+</header>
+
+<section class="hero">
+  <div class="eyebrow">A napodhoz öltözve</div>
+  <h1>Jó érzés úgy elindulni, hogy jól választottál.</h1>
+  <p class="sub">Valós időjárási adatok alapján segítünk kiválasztani a mai öltözékedet.</p>
+</section>
+
+<div class="controls">
+  <div class="field">
+    <label for="city">Település</label>
+    <input id="city" type="text" value="Budapest" placeholder="Írd be a települést">
+  </div>
+  <div class="field">
+    <label>Adatok forrása</label>
+    <input value="Automatikus időjárás" readonly>
+  </div>
+</div>
+
+<div class="weather">
+  <div class="metric">
+    <div class="icon" id="weatherIcon">🌤️</div>
+    <strong id="tempDisplay">--°</strong>
+    <small id="cityDisplay">Budapest</small>
+  </div>
+  <div class="metric">
+    <div class="icon">🌡️</div>
+    <strong id="feelsDisplay">--°</strong>
+    <small>Hőérzet</small>
+  </div>
+  <div class="metric">
+    <div class="icon">☔</div>
+    <strong id="rainDisplay">--%</strong>
+    <small>Eső esélye</small>
+  </div>
+</div>
+
+<h2 class="section-title">Ezt ajánljuk mára</h2>
+
+<section class="recommend">
+  <div class="recommend-head">
+    <h2>Mai összeállításod</h2>
+    <span class="tag" id="weatherTag">Betöltés...</span>
+  </div>
+  <div class="outfit" id="outfit">
+    <div class="item">Időjárási adatok betöltése...</div>
+  </div>
+</section>
+
+<h2 class="section-title">Így alakul a napod</h2>
+<div class="period-grid" id="hourlyForecast">
+  <p class="status">Előrejelzés betöltése...</p>
+</div>
+
+<div class="tip">
+  💡 <strong>Mai tanács</strong>
+  <p id="tipText">Az ajánlás az időjárási adatok alapján készül.</p>
+</div>
+
+<h2 class="section-title">Óránkénti előrejelzés</h2>
+<div class="period-grid" id="hourList"></div>
+
+<div class="actions">
+  <button class="primary" id="refresh">Időjárás frissítése</button>
+  <button class="secondary" id="myLocation">Saját helyem</button>
+</div>
+
+<p class="status" id="status" role="status">
+  Időjárási adatok betöltése...
+</p>
+
+<p class="status">
+  Az adatok forrása: Open-Meteo. Automatikus frissítés 15 percenként.
+</p>
+
+<footer>Mit vegyek fel ma? · Öltözz az időjáráshoz.</footer>
+
+</div>
+</main>
+
 <script>
 const $ = id => document.getElementById(id);
 
@@ -8,7 +346,6 @@ let refreshTimer;
 
 function clothingAdvice(temp, rain) {
   let advice;
-
   if (temp < 5) {
     advice = "Meleg kabát, pulóver, sál és zárt cipő";
   } else if (temp < 13) {
@@ -18,7 +355,6 @@ function clothingAdvice(temp, rain) {
   } else {
     advice = "Póló, könnyű nadrág és szellős cipő";
   }
-
   if (rain >= 50) advice += " · Esőkabát vagy esernyő";
   return advice;
 }
@@ -36,7 +372,6 @@ function getWeatherIcon(code) {
 
 function updateOutfit(temp, rain, wind) {
   let items, tag, tip;
-
   if (temp < 5) {
     items = [
       ["🧥","Meleg télikabát","Szélálló, bélelt kabát"],
@@ -112,8 +447,7 @@ function renderForecast(data) {
   $("hourlyForecast").innerHTML = periods.map(period => {
     const indices = h.time.map((t,i) => {
       const hour = Number(t.slice(11,13));
-      return t.startsWith(today) &&
-        hour >= period.start && hour < period.end ? i : -1;
+      return t.startsWith(today) && hour >= period.start && hour < period.end ? i : -1;
     }).filter(i => i >= 0);
 
     if (!indices.length) {
@@ -121,9 +455,7 @@ function renderForecast(data) {
     }
 
     const temps = indices.map(i => h.apparent_temperature[i]);
-    const rain = Math.max(...indices.map(i =>
-      h.precipitation_probability[i] || 0
-    ));
+    const rain = Math.max(...indices.map(i => h.precipitation_probability[i] || 0));
     const average = temps.reduce((a,b) => a+b,0) / temps.length;
 
     return `
@@ -158,17 +490,13 @@ function renderForecast(data) {
 }
 
 async function findCity(name) {
-  const url = "https://geocoding-api.open-meteo.com/v1/search?name=" +
-    encodeURIComponent(name) + "&count=5&language=hu&format=json";
-
+  const url = "https://geocoding-api.open-meteo.com/v1/search?name=" + encodeURIComponent(name) + "&count=5&language=hu&format=json";
   const response = await fetch(url);
   if (!response.ok) throw new Error("A település keresése nem sikerült.");
-
   const data = await response.json();
   if (!data.results || !data.results.length) {
     throw new Error("Nem találom ezt a települést.");
   }
-
   return data.results[0];
 }
 
@@ -178,27 +506,16 @@ async function loadWeather(coords, cityName) {
   $("refresh").disabled = true;
 
   try {
-    const url =
-      `https://api.open-meteo.com/v1/forecast?latitude=${coords[0]}` +
-      `&longitude=${coords[1]}` +
-      "&current=temperature_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m" +
-      "&hourly=temperature_2m,apparent_temperature,precipitation_probability,precipitation" +
-      "&forecast_days=2&timezone=auto";
-
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords[0]}&longitude=${coords[1]}&current=temperature_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m&hourly=temperature_2m,apparent_temperature,precipitation_probability,precipitation&forecast_days=2&timezone=auto`;
     const response = await fetch(url);
     if (!response.ok) throw new Error("Az időjárási szolgáltatás nem elérhető.");
 
     const data = await response.json();
-
     if (thisRequest !== requestNumber) return;
 
     const current = data.current;
     const timeIndex = data.hourly.time.indexOf(current.time);
-
-    const rain = timeIndex >= 0
-      ? (data.hourly.precipitation_probability[timeIndex] ?? 0)
-      : 0;
-
+    const rain = timeIndex >= 0 ? (data.hourly.precipitation_probability[timeIndex] ?? 0) : 0;
     const temp = current.temperature_2m;
     const feels = current.apparent_temperature;
     const wind = current.wind_speed_10m;
@@ -216,15 +533,10 @@ async function loadWeather(coords, cityName) {
     selectedCity = cityName;
     $("city").value = cityName.includes("°") ? cityName : cityName.split(",")[0];
 
-    $("status").textContent =
-      "Frissítve: " +
-      new Date(current.time).toLocaleString("hu-HU") +
-      " · Szél: " + Math.round(wind) + " km/h · Open-Meteo";
-
+    $("status").textContent = "Frissítve: " + new Date(current.time).toLocaleString("hu-HU") + " · Szél: " + Math.round(wind) + " km/h · Open-Meteo";
   } catch (error) {
     if (thisRequest === requestNumber) {
-      $("status").textContent = "Hiba: " + error.message +
-        " Ellenőrizd az internetkapcsolatot.";
+      $("status").textContent = "Hiba: " + error.message + " Ellenőrizd az internetkapcsolatot.";
     }
   } finally {
     if (thisRequest === requestNumber) {
@@ -234,41 +546,28 @@ async function loadWeather(coords, cityName) {
 }
 
 let cityTimer;
-
 async function changeCity() {
   const name = $("city").value.trim();
   if (name.length < 2) return;
 
   clearTimeout(cityTimer);
-
   cityTimer = setTimeout(async () => {
     try {
       $("status").textContent = "Település keresése...";
       const result = await findCity(name);
-
-      const displayName = [
-        result.name,
-        result.admin1,
-        result.country
-      ].filter(Boolean).join(", ");
-
-      await loadWeather(
-        [result.latitude, result.longitude],
-        displayName
-      );
+      const displayName = [result.name, result.admin1, result.country].filter(Boolean).join(", ");
+      await loadWeather([result.latitude, result.longitude], displayName);
     } catch (error) {
       $("status").textContent = error.message;
     }
   }, 700);
 }
 
-// GPS lekérés gombnyomásra ("Saját helyem" gomb)
 function useMyLocation() {
   if (!navigator.geolocation) {
     $("status").textContent = "A böngésző nem támogatja a helymeghatározást.";
     return;
   }
-
   $("status").textContent = "Pontos GPS koordináták lekérése...";
 
   navigator.geolocation.getCurrentPosition(
@@ -277,18 +576,13 @@ function useMyLocation() {
       const lon = position.coords.longitude;
       const coords = [lat, lon];
       const gpsString = `${lat.toFixed(4)}°, ${lon.toFixed(4)}°`;
-
       loadWeather(coords, gpsString);
     },
     (err) => {
       console.warn("GPS Hiba:", err);
       $("status").textContent = "A GPS helymeghatározás nem sikerült vagy le lett tiltva.";
     },
-    {
-      enableHighAccuracy: true,
-      timeout: 10000,
-      maximumAge: 0
-    }
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
   );
 }
 
@@ -306,10 +600,8 @@ $("refresh").addEventListener("click", () => {
 
 $("myLocation").addEventListener("click", useMyLocation);
 
-// Induláskor azonnal betölti az alapot, így semmi sem akaszthatja meg
 function startApp() {
   loadWeather(selectedCoordinates, selectedCity);
-
   clearInterval(refreshTimer);
   refreshTimer = setInterval(() => {
     loadWeather(selectedCoordinates, selectedCity);
@@ -318,3 +610,5 @@ function startApp() {
 
 startApp();
 </script>
+</body>
+</html>
