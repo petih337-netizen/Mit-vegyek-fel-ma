@@ -172,22 +172,6 @@ async function findCity(name) {
   return data.results[0];
 }
 
-// ÚJ: GPS Koordinátákból visszakeresi a legközelebbi településnevet
-async function getCityFromCoords(lat, lon) {
-  try {
-    const url = `https://geocoding-api.open-meteo.com/v1/reverse?latitude=${lat}&longitude=${lon}&count=1&language=hu&format=json`;
-    const response = await fetch(url);
-    if (!response.ok) return null;
-    const data = await response.json();
-    if (data.results && data.results.length > 0) {
-      return data.results[0].name;
-    }
-  } catch (e) {
-    console.warn("Reverse geocoding hiba:", e);
-  }
-  return null;
-}
-
 async function loadWeather(coords, cityName) {
   const thisRequest = ++requestNumber;
   $("status").textContent = "Időjárási adatok lekérése...";
@@ -270,7 +254,7 @@ async function changeCity() {
       ].filter(Boolean).join(", ");
 
       await loadWeather(
-        [result.latitude,result.longitude],
+        [result.latitude, result.longitude],
         displayName
       );
     } catch (error) {
@@ -279,5 +263,84 @@ async function changeCity() {
   }, 700);
 }
 
-// MÓDOSÍTVA: Pontos GPS meghatá
-  
+// GPS lekérés gombnyomásra
+function useMyLocation() {
+  if (!navigator.geolocation) {
+    $("status").textContent = "A böngésző nem támogatja a helymeghatározást.";
+    return;
+  }
+
+  $("status").textContent = "Pontos GPS adatok lekérése...";
+
+  navigator.geolocation.getCurrentPosition(
+    position => {
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+      const coords = [lat, lon];
+      const gpsString = `${lat.toFixed(4)}°, ${lon.toFixed(4)}°`;
+
+      $("city").value = gpsString;
+      loadWeather(coords, gpsString);
+    },
+    (err) => {
+      console.warn("GPS Hiba:", err);
+      $("status").textContent = "A GPS helymeghatározás nem sikerült. Írd be a település nevét.";
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0
+    }
+  );
+}
+
+$("city").addEventListener("change", changeCity);
+$("city").addEventListener("keydown", event => {
+  if (event.key === "Enter") {
+    clearTimeout(cityTimer);
+    changeCity();
+  }
+});
+
+$("refresh").addEventListener("click", () => {
+  loadWeather(selectedCoordinates, selectedCity);
+});
+
+$("myLocation").addEventListener("click", useMyLocation);
+
+// Induláskor: ha van GPS, azt használja, ha nincs/elutasítják, akkor Budapest marad
+function startApp() {
+  if (navigator.geolocation) {
+    $("status").textContent = "Saját GPS pozíció keresése...";
+    
+    navigator.geolocation.getCurrentPosition(
+      position => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        const coords = [lat, lon];
+        const gpsString = `${lat.toFixed(4)}°, ${lon.toFixed(4)}°`;
+
+        $("city").value = gpsString;
+        loadWeather(coords, gpsString);
+      },
+      () => {
+        loadWeather(selectedCoordinates, selectedCity);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 8000,
+        maximumAge: 0
+      }
+    );
+  } else {
+    loadWeather(selectedCoordinates, selectedCity);
+  }
+
+  clearInterval(refreshTimer);
+  refreshTimer = setInterval(() => {
+    loadWeather(selectedCoordinates, selectedCity);
+  }, 15 * 60 * 1000);
+}
+
+startApp();
+</script>
