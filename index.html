@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#eaf1ed">
+<title>Mit vegyek fel ma?</title>
+<style>
+:root {
+  color-scheme: light dark;
+  --site-primary: #315c50;
+  --site-on-primary: #ffffff;
+  --site-secondary: #e5eee8;
+  --site-on-secondary: #203b33;
+  --site-background: #f3f6f1;
+  --site-on-background: #1e2d28;
+  --site-font-body: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --site-font-heading: Georgia, "Times New Roman", serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: var(--site-font-body); background: var(--site-background); color: var(--site-on-background); }
+.app { min-height: 100vh; padding: 22px; }
+.shell { width: min(100%, 760px); margin: 0 auto; }
+header { display:flex; align-items:center; justify-content:space-between; gap:14px; padding: 8px 0 22px; }
+.brand { display:flex; align-items:center; gap:11px; font-weight:800; }
+.logo { width:42px; height:42px; display:grid; place-items:center; border-radius:15px; background:var(--site-primary); color:white; font-size:22px; }
+.brand span { font-size:17px; }
+.pill { border:1px solid #ccd8d0; border-radius:999px; padding:8px 12px; font-size:12px; }
+.hero { background:var(--site-primary); color:white; border-radius:28px; padding:clamp(22px, 5vw, 36px); }
+.eyebrow { text-transform:uppercase; letter-spacing:.14em; font-size:11px; opacity:.75; font-weight:700; }
+h1 { font:700 35px/1.08 var(--site-font-heading); margin:10px 0 8px; }
+.sub { opacity:.82; font-size:14px; }
+.controls { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:18px 0; }
+.field,.metric,.recommend { background:white; border:1px solid #dce5df; border-radius:16px; padding:14px; }
+label { display:block; font-size:11px; margin-bottom:7px; font-weight:700; }
+select,input { width:100%; border:0; background:transparent; color:#1e2d28; font:600 15px var(--site-font-body); }
+.weather { display:grid; grid-template-columns:1.1fr 1fr 1fr; gap:10px; margin:18px 0; }
+.metric .icon { font-size:21px; }
+.metric strong { display:block; font-size:22px; margin-top:8px; }
+.metric small { color:#718078; font-size:11px; }
+.section-title { font:700 24px/1.15 var(--site-font-heading); margin:27px 0 13px; }
+.recommend { border-radius:22px; padding:0; overflow:hidden; }
+.recommend-head { padding:19px 20px 12px; display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.recommend-head h2 { margin:0; font-size:17px; }
+.tag { border-radius:999px; background:var(--site-secondary); color:var(--site-on-secondary); padding:7px 10px; font-size:11px; font-weight:800; }
+.outfit { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; padding:8px 14px 16px; }
+.item { border-radius:16px; background:#f4f7f4; padding:15px; min-height:116px; }
+.item .emoji { font-size:27px; }
+.item b { display:block; margin:8px 0 3px; font-size:14px; }
+.item span { font-size:12px; color:#697970; }
+.tip { margin-top:14px; background:var(--site-secondary); color:var(--site-on-secondary); border-radius:18px; padding:16px 18px; display:flex; gap:12px; }
+.tip strong { display:block; font-size:13px; margin-bottom:4px; }
+.tip p { margin:0; font-size:13px; line-height:1.5; }
+.actions { display:flex; flex-wrap:wrap; gap:10px; margin:18px 0 8px; }
+button { border:0; border-radius:14px; padding:14px 16px; font:700 14px var(--site-font-body); cursor:pointer; }
+.primary { background:var(--site-primary); color:white; flex:1; }
+.secondary { background:var(--site-secondary); color:var(--site-on-secondary); }
+.note,.status { font-size:12px; line-height:1.5; color:#718078; margin:12px 2px; }
+footer { text-align:center; padding:20px 0 6px; font-size:11px; color:#85928b; }
+@media(max-width:520px) {
+  .app { padding:16px; }
+  .weather { gap:7px; }
+  .metric { padding:12px 10px; }
+  .metric strong { font-size:19px; }
+  .controls { gap:8px; }
+  h1 { font-size:32px; }
+}
+</style>
+</head>
+<body>
+<main class="app">
+<div class="shell">
+<header>
+<div class="brand"><div class="logo">☀</div><span>Mit vegyek fel ma?</span></div>
+<div class="pill">NAPI ÖLTÖZKÖDÉSI TIPP</div>
+</header>
+<section class="hero">
+<div class="eyebrow">A napodhoz öltözve</div>
+<h1>Jó érzés úgy elindulni, hogy jól választottál.</h1>
+<p class="sub">Add meg az időjárást, mi pedig segítünk összeállítani a mai szettedet.</p>
+</section>
+<div class="controls">
+<div class="field"><label for="city">Település</label>
+<select id="city">
+<option>Budapest</option><option>Debrecen</option><option>Szeged</option><option>Győr</option><option>Pécs</option><option>Miskolc</option><option>Nyíregyháza</option><option>Más település</option>
+</select></div>
+<div class="field"><label for="temp">Hőmérséklet (°C)</label><input id="temp" type="number" value="14"></div>
+<div class="field"><label for="feels">Hőérzet (°C)</label><input id="feels" type="number" value="12"></div>
+<div class="field"><label for="rain">Csapadék esélye</label>
+<select id="rain"><option value="0">Nem várható</option><option value="20">Kicsi (20%)</option><option value="50">Közepes (50%)</option><option value="80">Magas (80%)</option></select></div>
+</div>
+<div class="weather">
+<div class="metric"><div class="icon" id="weatherIcon">🌤️</div><strong id="tempDisplay">14°</strong><small id="cityDisplay">Budapest</small></div>
+<div class="metric"><div class="icon">🌡️</div><strong id="feelsDisplay">12°</strong><small>Hőérzet</small></div>
+<div class="metric"><div class="icon">☔</div><strong id="rainDisplay">0%</strong><small>Eső esélye</small></div>
+</div>
+<h2 class="section-title">Ezt ajánljuk mára</h2>
+<section class="recommend">
+<div class="recommend-head"><h2>Mai összeállításod</h2><span class="tag" id="weatherTag">Réteges öltözet</span></div>
+<div class="outfit" id="outfit">
+<div class="item"><div class="emoji">🧶</div><b>Vékony pulóver</b><span>Kényelmes alapréteg</span></div>
+<div class="item"><div class="emoji">🧥</div><b>Átmeneti kabát</b><span>Jól jön a hűvösebb órákban</span></div>
+<div class="item"><div class="emoji">👖</div><b>Hosszú nadrág</b><span>Farmer vagy kényelmes nadrág</span></div>
+<div class="item"><div class="emoji">👟</div><b>Zárt cipő</b><span>Sportcipő vagy kényelmes utcai cipő</span></div>
+</div>
+</section>
+<div class="tip"><div style="font-size:22px">💡</div><div><strong>Mai tanács</strong><p id="tipText">A réteges öltözködés jó választás: ha melegebb lesz, könnyen levehetsz egy réteget.</p></div></div>
+<div class="actions">
+<button class="primary" id="update">Ajánlás frissítése</button>
+<button class="secondary" id="weatherUpdate">Időjárás lekérése</button>
+<button class="secondary" id="reset">Alaphelyzet</button>
+</div>
+<p class="status" id="status" role="status">Válassz települést, majd kérd le az aktuális időjárást.</p>
+<p class="note">Időjárási adatok: Open-Meteo. Internetkapcsolat szükséges az időjárás frissítéséhez.</p>
+<footer>Mit vegyek fel ma? · Öltözz az időjáráshoz.</footer>
+</div>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+function update() {
+  const temp = Number($('feels').value || $('temp').value || 14);
+  const actual = Number($('temp').value || 14);
+  const rain = Number($('rain').value);
+  const city = $('city').value;
+  $('tempDisplay').textContent = `${actual}°`;
+  $('feelsDisplay').textContent = `${temp}°`;
+  $('rainDisplay').textContent = `${rain}%`;
+  $('cityDisplay').textContent = city;
+  $('weatherIcon').textContent = rain >= 50 ? '🌧️' : temp >= 25 ? '☀️' : temp >= 16 ? '🌤️' : '☁️';
+  let items, tag, tip;
+  if (temp < 5) {
+    items = [['🧥','Meleg télikabát','Szélálló, bélelt darab'],['🧣','Sál és meleg réteg','Pulóver vagy vastag felső'],['👖','Vastag hosszú nadrág','Hidegben kényelmesebb'],['🥾','Zárt, meleg cipő','Lehetőleg csúszásmentes']];
+    tag='Hideg idő'; tip='Öltözz melegen, több rétegben. A sapka és a kesztyű is jól jöhet.';
+  } else if (temp < 13) {
+    items = [['🧶','Melegebb pulóver','Hosszú ujjú alapréteg'],['🧥','Melegebb kabát','Átmeneti vagy bélelt kabát'],['👖','Hosszú nadrág','Farmer vagy vastagabb anyag'],['👟','Zárt cipő','Kényelmes utcai cipő']];
+    tag='Hűvös idő'; tip='Reggel és este hűvösebb lehet, ezért vigyél magaddal kabátot.';
+  } else if (temp < 21) {
+    items = [['👕','Hosszú ujjú felső','Vékony pulóver is jó lehet'],['🧥','Könnyű kabát','Rétegesen könnyű alkalmazkodni'],['👖','Hosszú nadrág','Kényelmes, szellős anyag'],['👟','Zárt cipő','Sportcipő vagy vászoncipő']];
+    tag='Enyhe idő'; tip='A réteges öltözködés a legjobb: napközben leveheted a könnyű kabátot.';
+  } else {
+    items = [['👕','Könnyű póló','Légáteresztő anyag'],['🧢','Nap elleni kiegészítő','Sapka vagy napszemüveg'],['🩳','Könnyű nadrág','Rövid vagy vékony hosszú nadrág'],['👡','Szellős lábbeli','Kényelmes, nyitott vagy könnyű cipő']];
+    tag='Meleg idő'; tip='Válassz világos, könnyű ruhákat, és gondolj a napvédelemre is.';
+  }
+  if (rain >= 50) {
+    items[1] = ['🌂','Esőkabát vagy esernyő','Készülj a csapadékra'];
+    items[3] = ['🥾','Vízálló cipő','Kerüld a könnyen átázó lábbelit'];
+    tip += ' Az eső miatt vízálló felsőréteg és cipő ajánlott.';
+  }
+  $('weatherTag').textContent = tag;
+  $('tipText').textContent = tip;
+  $('outfit').innerHTML = items.map(x => `<div class="item"><div class="emoji">${x[0]}</div><b>${x[1]}</b><span>${x[2]}</span></div>`).join('');
+}
+$('reset').addEventListener('click', () => {
+  $('city').value='Budapest'; $('temp').value=14; $('feels').value=12; $('rain').value='0'; update();
+});
+$('update').addEventListener('click', () => {
+  update(); $('status').textContent = 'Kész! Az ajánlást frissítettem.';
+});
+$('weatherUpdate').addEventListener('click', loadLiveWeather);
+$('city').addEventListener('change', () => { $('cityDisplay').textContent=$('city').value; });
+const cityCoordinates = {
+  'Budapest': [47.4979, 19.0402],
+  'Debrecen': [47.5316, 21.6273],
+  'Szeged': [46.2530, 20.1414],
+  'Győr': [47.6875, 17.6504],
+  'Pécs': [46.0727, 18.2323],
+  'Miskolc': [48.1035, 20.7784],
+  'Nyíregyháza': [47.9495, 21.7244]
+};
+async function loadLiveWeather() {
+  const city = $('city').value;
+  const status = $('status');
+  const button = $('weatherUpdate');
+  status.textContent = 'Időjárási adatok lekérése…';
+  button.disabled = true;
+  try {
+    let coordinates = cityCoordinates[city];
+    if (!coordinates) {
+      const answer = prompt('Melyik település időjárását szeretnéd látni?');
+      if (!answer || !answer.trim()) { status.textContent = 'Nem adtál meg települést.'; return; }
+      const geoResponse = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(answer.trim())}&count=1&language=hu&format=json`);
+      if (!geoResponse.ok) throw new Error('A település keresése nem sikerült.');
+      const geoData = await geoResponse.json();
+      if (!geoData.results || !geoData.results.length) throw new Error('Nem találom ezt a települést.');
+      coordinates = [geoData.results[0].latitude, geoData.results[0].longitude];
+      $('cityDisplay').textContent = geoData.results[0].name;
+    }
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${coordinates[0]}&longitude=${coordinates[1]}&current=temperature_2m,apparent_temperature,precipitation,weather_code&hourly=precipitation_probability&forecast_days=1&timezone=auto`;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Az időjárási szolgáltatás most nem elérhető.');
+    const data = await response.json();
+    const current = data.current;
+    const hour = new Date(current.time).getHours();
+    const index = data.hourly.time.findIndex(value => new Date(value).getHours() === hour);
+    const rain = index >= 0 ? (data.hourly.precipitation_probability[index] ?? 0) : 0;
+    $('temp').value = Math.round(current.temperature_2m);
+    $('feels').value = Math.round(current.apparent_temperature);
+    $('rain').value = rain >= 65 ? '80' : rain >= 35 ? '50' : rain >= 10 ? '20' : '0';
+    update();
+    $('rainDisplay').textContent = `${rain}%`;
+    status.textContent = `Frissítve: ${new Date(current.time).toLocaleString('hu-HU')} · Open-Meteo`;
+  } catch (error) {
+    status.textContent = `${error.message} Ellenőrizd az internetkapcsolatot, vagy add meg kézzel az adatokat.`;
+  } finally {
+    button.disabled = false;
+  }
+}
+update();
+</script>
+</body>
+</html>
