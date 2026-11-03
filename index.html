@@ -214,6 +214,7 @@ async function loadWeather(coords, cityName) {
 
     selectedCoordinates = coords;
     selectedCity = cityName;
+    $("city").value = cityName.includes("°") ? cityName : cityName.split(",")[0];
 
     $("status").textContent =
       "Frissítve: " +
@@ -245,8 +246,6 @@ async function changeCity() {
       $("status").textContent = "Település keresése...";
       const result = await findCity(name);
 
-      $("city").value = result.name;
-
       const displayName = [
         result.name,
         result.admin1,
@@ -263,14 +262,14 @@ async function changeCity() {
   }, 700);
 }
 
-// GPS lekérés gombnyomásra
+// GPS lekérés gombnyomásra ("Saját helyem" gomb)
 function useMyLocation() {
   if (!navigator.geolocation) {
     $("status").textContent = "A böngésző nem támogatja a helymeghatározást.";
     return;
   }
 
-  $("status").textContent = "Pontos GPS adatok lekérése...";
+  $("status").textContent = "Pontos GPS koordináták lekérése...";
 
   navigator.geolocation.getCurrentPosition(
     position => {
@@ -279,12 +278,11 @@ function useMyLocation() {
       const coords = [lat, lon];
       const gpsString = `${lat.toFixed(4)}°, ${lon.toFixed(4)}°`;
 
-      $("city").value = gpsString;
       loadWeather(coords, gpsString);
     },
     (err) => {
       console.warn("GPS Hiba:", err);
-      $("status").textContent = "A GPS helymeghatározás nem sikerült. Írd be a település nevét.";
+      $("status").textContent = "A GPS helymeghatározás nem sikerült vagy le lett tiltva.";
     },
     {
       enableHighAccuracy: true,
@@ -308,33 +306,9 @@ $("refresh").addEventListener("click", () => {
 
 $("myLocation").addEventListener("click", useMyLocation);
 
-// Induláskor: ha van GPS, azt használja, ha nincs/elutasítják, akkor Budapest marad
+// Induláskor azonnal betölti az alapot, így semmi sem akaszthatja meg
 function startApp() {
-  if (navigator.geolocation) {
-    $("status").textContent = "Saját GPS pozíció keresése...";
-    
-    navigator.geolocation.getCurrentPosition(
-      position => {
-        const lat = position.coords.latitude;
-        const lon = position.coords.longitude;
-        const coords = [lat, lon];
-        const gpsString = `${lat.toFixed(4)}°, ${lon.toFixed(4)}°`;
-
-        $("city").value = gpsString;
-        loadWeather(coords, gpsString);
-      },
-      () => {
-        loadWeather(selectedCoordinates, selectedCity);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 8000,
-        maximumAge: 0
-      }
-    );
-  } else {
-    loadWeather(selectedCoordinates, selectedCity);
-  }
+  loadWeather(selectedCoordinates, selectedCity);
 
   clearInterval(refreshTimer);
   refreshTimer = setInterval(() => {
