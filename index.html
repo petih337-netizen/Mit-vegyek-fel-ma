@@ -85,17 +85,20 @@ h1 {
   color: #e4eee8;
 }
 
-/* IDŐJÁRÁSI JELENET */
+/* IDŐJÁRÁSI JELENET ÉS AI KARAKTER */
 
 .weather-scene {
   position: relative;
-  height: 190px;
+  height: 220px;
   margin: 18px 0;
   overflow: hidden;
   border-radius: 24px;
   background: linear-gradient(180deg, #4b91ad, #315c68 75%, #1c302b);
   box-shadow: inset 0 0 35px rgba(255,255,255,.08);
   transition: background 1s ease;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
 }
 
 .scene-sun {
@@ -158,6 +161,7 @@ h1 {
   pointer-events: none;
   opacity: 0;
   transition: opacity .5s;
+  z-index: 2;
 }
 
 .scene-rain::before {
@@ -194,6 +198,70 @@ h1 {
 
 .scene-lightning::after {
   content: "⚡";
+}
+
+/* AI KARAKTER ANIMÁCIÓ ÉS STÍLUS */
+.ai-character {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: characterFloat 3s ease-in-out infinite;
+  margin-bottom: 5px;
+}
+
+.avatar-head {
+  width: 32px;
+  height: 36px;
+  background: #f5d0b1;
+  border-radius: 50% 50% 40% 40%;
+  position: relative;
+}
+
+.avatar-hair {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  height: 22px;
+  background: #6b4423;
+  border-radius: 50% 50% 20% 20%;
+  z-index: 1;
+}
+
+.avatar-body {
+  width: 48px;
+  height: 60px;
+  background: var(--primary);
+  border-radius: 12px 12px 6px 6px;
+  position: relative;
+  margin-top: -4px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  transition: background 0.5s ease;
+}
+
+.avatar-accessory {
+  position: absolute;
+  right: -22px;
+  top: 10px;
+  font-size: 24px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.weather-scene.weather-rain .avatar-accessory,
+.weather-scene.weather-storm .avatar-accessory {
+  opacity: 1;
+}
+
+.weather-scene.weather-sunny .avatar-body { background: #e09f3e; }
+.weather-scene.weather-snow .avatar-body { background: #4a6fa5; }
+.weather-scene.weather-rain .avatar-body { background: #2a9d8f; }
+
+@keyframes characterFloat {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-6px) rotate(1deg); }
 }
 
 .weather-scene.weather-sunny {
@@ -511,9 +579,10 @@ footer {
 <section class="hero">
   <div class="eyebrow">A napodhoz öltözve</div>
   <h1>Jó érzés úgy elindulni, hogy jól választottál.</h1>
-  <p class="sub">Valós időjárási adatok alapján segítünk kiválasztani a mai öltözékedet.</p>
+  <p class="sub">Valós időjárási adatok alapján segítünk kiválasztani a mai öltözékedet és programot.</p>
 </section>
 
+<!-- IDŐJÁRÁSI JELENET ÉS ANIMÁLT AI KARAKTER -->
 <div class="weather-scene weather-cloudy" id="weatherScene">
   <div class="scene-sun"></div>
   <div class="scene-cloud cloud-one"></div>
@@ -521,6 +590,15 @@ footer {
   <div class="scene-rain"></div>
   <div class="scene-snow"></div>
   <div class="scene-lightning"></div>
+  
+  <div class="ai-character" id="aiCharacter">
+    <div class="avatar-head">
+      <div class="avatar-hair"></div>
+    </div>
+    <div class="avatar-body">
+      <div class="avatar-accessory" id="avatarAccessory">🌂</div>
+    </div>
+  </div>
 </div>
 
 <div class="controls">
@@ -564,6 +642,11 @@ footer {
   </div>
 </section>
 
+<div class="tip">
+  🎯 <strong>Mit lehet csinálni ma? (Programajánló)</strong>
+  <p id="activityText">Az időjárásnak megfelelő programok betöltése...</p>
+</div>
+
 <h2 class="section-title">Így alakul a napod</h2>
 <div class="period-grid" id="hourlyForecast">
   <p class="status">Előrejelzés betöltése...</p>
@@ -599,14 +682,13 @@ footer {
 const $ = id => document.getElementById(id);
 
 let requestNumber = 0;
-let selectedCoordinates = [47.4979, 19.0402]; // Alapértelmezett (Budapest)
+let selectedCoordinates = [47.4979, 19.0402];
 let selectedCity = "Budapest";
 let refreshTimer;
 let cityTimer;
 
 function clothingAdvice(temp, rain) {
   let advice;
-
   if (temp < 5) {
     advice = "Meleg kabát, pulóver, sál és zárt cipő";
   } else if (temp < 13) {
@@ -616,7 +698,6 @@ function clothingAdvice(temp, rain) {
   } else {
     advice = "Póló, könnyű nadrág és szellős cipő";
   }
-
   if (rain >= 50) advice += " · Esőkabát vagy esernyő";
   return advice;
 }
@@ -633,34 +714,40 @@ function getWeatherIcon(code) {
   return "⛈️";
 }
 
-/* AUTOMATIKUS IDŐJÁRÁSI ANIMÁCIÓ */
-
 function updateWeatherScene(code, isDay) {
   const scene = $("weatherScene");
   let type = "cloudy";
+  let accessory = "";
 
   if (code === 0) {
     type = "sunny";
+    accessory = "🕶️";
   } else if (code <= 3) {
     type = "cloudy";
+    accessory = "👜";
   } else if (code === 45 || code === 48) {
     type = "fog";
+    accessory = "🧥";
   } else if ([71, 73, 75, 77, 85, 86].includes(code)) {
     type = "snow";
+    accessory = "🧣";
   } else if ([95, 96, 99].includes(code)) {
     type = "storm";
+    accessory = "🌂";
   } else if (code >= 51 && code <= 67) {
     type = "rain";
+    accessory = "🌂";
   } else if (code >= 80 && code <= 82) {
     type = "rain";
+    accessory = "🌂";
   }
 
-  scene.className = "weather-scene weather-" + type +
-    (isDay ? "" : " weather-night");
+  scene.className = "weather-scene weather-" + type + (isDay ? "" : " weather-night");
+  $("avatarAccessory").textContent = accessory;
 }
 
 function updateOutfit(temp, rain, wind) {
-  let items, tag, tip;
+  let items, tag, tip, activity;
 
   if (temp < 5) {
     items = [
@@ -671,6 +758,7 @@ function updateOutfit(temp, rain, wind) {
     ];
     tag = "Hideg idő";
     tip = "Öltözz melegen, több rétegben. A sapka és kesztyű is jól jöhet.";
+    activity = "❄️ Kiváló alkalom egy forró teázáshoz egy hangulatos kávézóban, múzeumlátogatáshoz vagy egy friss levegős téli sétához a parkban.";
   } else if (temp < 13) {
     items = [
       ["🧶","Melegebb pulóver","Hosszú ujjú alapréteg"],
@@ -680,6 +768,7 @@ function updateOutfit(temp, rain, wind) {
     ];
     tag = "Hűvös idő";
     tip = "Reggel és este hűvösebb lehet, ezért vigyél magaddal kabátot.";
+    activity = "🍂 Tökéletes időjárás egy élénkítő sétához, könnyű túrázáshoz, városnézéshez vagy kerékpározáshoz.";
   } else if (temp < 21) {
     items = [
       ["👕","Hosszú ujjú felső","Vékony pulóver is jó lehet"],
@@ -689,6 +778,7 @@ function updateOutfit(temp, rain, wind) {
     ];
     tag = "Enyhe idő";
     tip = "A réteges öltözködés jó választás.";
+    activity = "🌳 Remek idő szabadtéri programokhoz, parkban való piknikezéshez, fotózáshoz vagy egy kellemes sétához a városban.";
   } else {
     items = [
       ["👕","Könnyű póló","Légáteresztő anyag"],
@@ -698,12 +788,14 @@ function updateOutfit(temp, rain, wind) {
     ];
     tag = "Meleg idő";
     tip = "Válassz világos, könnyű ruhákat, és gondolj a napvédelemre.";
+    activity = "☀️ Ideális időstrandoláshoz, fagyizáshoz, szabadtéri sportoláshoz vagy egy kellemes esti teraszozáshoz!";
   }
 
   if (rain >= 50) {
     items[1] = ["🌂","Esőkabát vagy esernyő","Készülj a csapadékra"];
     items[3] = ["🥾","Vízálló cipő","Kerüld az átázó lábbelit"];
     tip += " Eső miatt vízálló felsőréteg ajánlott.";
+    activity = "🌧️ Esős nap! Ideális beltéri programokhoz: könyvtár, mozi, társasjáték barátokkal vagy otthoni olvasás.";
   }
 
   if (wind >= 35) {
@@ -712,6 +804,7 @@ function updateOutfit(temp, rain, wind) {
 
   $("weatherTag").textContent = tag;
   $("tipText").textContent = tip;
+  $("activityText").textContent = activity;
 
   $("outfit").innerHTML = items.map(item => `
     <div class="item">
@@ -893,10 +986,8 @@ $("refresh").addEventListener("click", () => {
   loadWeather(selectedCoordinates, selectedCity);
 });
 
-// Automatikus GPS lekérdező függvény
 function initGeoLocation() {
   if (!navigator.geolocation) {
-    // Ha a böngésző nem támogatja, marad Budapesten
     loadWeather(selectedCoordinates, selectedCity);
     return;
   }
@@ -910,20 +1001,17 @@ function initGeoLocation() {
 
     loadWeather([lat, lon], name);
   }, () => {
-    // Ha a felhasználó tiltja vagy hiba történik, alapértelmezettként betöltődik Budapest
     $("status").textContent = "GPS letiltva vagy nem elérhető. Alapértelmezett hely (Budapest) betöltve.";
     loadWeather(selectedCoordinates, selectedCity);
   }, { timeout: 10000 });
 }
 
-$("myLocation").addEventListener("click", () => {
+$("myLocation").AddEventListener("click", () => {
   initGeoLocation();
 });
 
-// Induláskor azonnal megkíséreljük a GPS helymeghatározást
 initGeoLocation();
 
-// Automatikus frissítés 15 percenként
 refreshTimer = setInterval(() => {
   loadWeather(selectedCoordinates, selectedCity);
 }, 15 * 60 * 1000);
