@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="hu">
 <head>
@@ -580,7 +579,7 @@ footer {
 
 <div class="actions">
   <button class="primary" id="refresh">Időjárás frissítése</button>
-  <button class="secondary" id="myLocation">Saját helyem</button>
+  <button class="secondary" id="myLocation">Saját helyem (GPS)</button>
 </div>
 
 <p class="status" id="status" role="status">
@@ -600,7 +599,7 @@ footer {
 const $ = id => document.getElementById(id);
 
 let requestNumber = 0;
-let selectedCoordinates = [47.4979, 19.0402];
+let selectedCoordinates = [47.4979, 19.0402]; // Alapértelmezett (Budapest)
 let selectedCity = "Budapest";
 let refreshTimer;
 let cityTimer;
@@ -786,16 +785,10 @@ async function findCity(name) {
     encodeURIComponent(name) + "&count=5&language=hu&format=json";
 
   const response = await fetch(url);
-
-  if (!response.ok) {
-    throw new Error("A település keresése nem sikerült.");
-  }
+  if (!response.ok) throw new Error("A település keresése nem sikerült.");
 
   const data = await response.json();
-
-  if (!data.results || !data.results.length) {
-    throw new Error("Nem találom ezt a települést.");
-  }
+  if (!data.results || !data.results.length) throw new Error("Nem találom ezt a települést.");
 
   return data.results[0];
 }
@@ -804,7 +797,6 @@ async function getCityNameFromCoords(lat, lon) {
   try {
     const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&accept-language=hu`;
     const response = await fetch(url);
-
     if (!response.ok) return null;
 
     const data = await response.json();
@@ -817,7 +809,6 @@ async function getCityNameFromCoords(lat, lon) {
   } catch (e) {
     console.warn("Helynév keresési hiba:", e);
   }
-
   return null;
 }
 
@@ -831,13 +822,9 @@ async function loadWeather(coords, cityName) {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords[0]}&longitude=${coords[1]}&current=temperature_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,is_day&hourly=temperature_2m,apparent_temperature,precipitation_probability,precipitation&forecast_days=2&timezone=auto`;
 
     const response = await fetch(url);
-
-    if (!response.ok) {
-      throw new Error("Az időjárási szolgáltatás nem elérhető.");
-    }
+    if (!response.ok) throw new Error("Az időjárási szolgáltatás nem elérhető.");
 
     const data = await response.json();
-
     if (thisRequest !== requestNumber) return;
 
     const current = data.current;
@@ -857,9 +844,7 @@ async function loadWeather(coords, cityName) {
     $("cityDisplay").textContent = cityName;
     $("weatherIcon").textContent = getWeatherIcon(current.weather_code);
 
-    // Az animáció automatikus frissítése
     updateWeatherScene(current.weather_code, current.is_day);
-
     updateOutfit(feels, rain, wind);
     renderForecast(data);
 
@@ -875,8 +860,7 @@ async function loadWeather(coords, cityName) {
 
   } catch (error) {
     if (thisRequest === requestNumber) {
-      $("status").textContent =
-        "Hiba: " + error.message + " Ellenőrizd az internetkapcsolatot.";
+      $("status").textContent = "Hiba: " + error.message + " Ellenőrizd az internetkapcsolatot.";
     }
   } finally {
     if (thisRequest === requestNumber) {
@@ -887,7 +871,6 @@ async function loadWeather(coords, cityName) {
 
 async function changeCity() {
   const name = $("city").value.trim();
-
   if (name.length < 2) return;
 
   clearTimeout(cityTimer);
@@ -895,11 +878,55 @@ async function changeCity() {
   cityTimer = setTimeout(async () => {
     try {
       $("status").textContent = "Település keresése...";
-
       const result = await findCity(name);
+      const displayName = [result.name, result.admin1, result.country].filter(Boolean).join(", ");
+      await loadWeather([result.latitude, result.longitude], displayName);
+    } catch (error) {
+      $("status").textContent = error.message;
+    }
+  }, 800);
+}
 
-      const displayName = [
-        result.name,
-        result.admin1,
-        result.country
-      ].filter(Boolean).join(", ")
+$("city").addEventListener("input", changeCity);
+
+$("refresh").addEventListener("click", () => {
+  loadWeather(selectedCoordinates, selectedCity);
+});
+
+// Automatikus GPS lekérdező függvény
+function initGeoLocation() {
+  if (!navigator.geolocation) {
+    // Ha a böngésző nem támogatja, marad Budapesten
+    loadWeather(selectedCoordinates, selectedCity);
+    return;
+  }
+
+  $("status").textContent = "GPS helymeghatározás folyamatban...";
+
+  navigator.geolocation.getCurrentPosition(async position => {
+    const lat = position.coords.latitude;
+    const lon = position.coords.longitude;
+    const name = await getCityNameFromCoords(lat, lon) || "Saját helyzetem";
+
+    loadWeather([lat, lon], name);
+  }, () => {
+    // Ha a felhasználó tiltja vagy hiba történik, alapértelmezettként betöltődik Budapest
+    $("status").textContent = "GPS letiltva vagy nem elérhető. Alapértelmezett hely (Budapest) betöltve.";
+    loadWeather(selectedCoordinates, selectedCity);
+  }, { timeout: 10000 });
+}
+
+$("myLocation").addEventListener("click", () => {
+  initGeoLocation();
+});
+
+// Induláskor azonnal megkíséreljük a GPS helymeghatározást
+initGeoLocation();
+
+// Automatikus frissítés 15 percenként
+refreshTimer = setInterval(() => {
+  loadWeather(selectedCoordinates, selectedCity);
+}, 15 * 60 * 1000);
+</script>
+</body>
+</html>
