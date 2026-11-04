@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="hu">
 <head>
@@ -5,8 +6,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#14221d">
 <title>Mit vegyek fel ma?</title>
+
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6276632160461378"
-     crossorigin="anonymous"></script>
+crossorigin="anonymous"></script>
+
 <style>
 :root {
   color-scheme: dark;
@@ -18,21 +21,26 @@
   --text: #ffffff;
   --muted: #bdc9c2;
 }
+
 * { box-sizing: border-box; }
+
 body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
   font-family: Arial, sans-serif;
 }
+
 .app {
   min-height: 100vh;
   padding: 20px;
 }
+
 .shell {
   width: min(100%, 760px);
   margin: auto;
 }
+
 header {
   display: flex;
   justify-content: space-between;
@@ -40,51 +48,267 @@ header {
   gap: 12px;
   padding: 10px 0 22px;
 }
+
 .brand {
   font-weight: bold;
   font-size: 17px;
 }
+
 .pill {
   border: 1px solid #526158;
   border-radius: 30px;
   padding: 8px 12px;
   font-size: 11px;
 }
+
 .hero {
   background: var(--primary);
   border-radius: 25px;
   padding: 28px;
 }
+
 .eyebrow {
   font-size: 11px;
   letter-spacing: 2px;
   opacity: .8;
 }
+
 h1 {
   font-family: Georgia, serif;
   font-size: clamp(28px, 6vw, 38px);
   line-height: 1.1;
   margin: 12px 0;
 }
+
 .sub {
   font-size: 14px;
   line-height: 1.5;
   color: #e4eee8;
 }
+
+/* IDŐJÁRÁSI JELENET */
+
+.weather-scene {
+  position: relative;
+  height: 190px;
+  margin: 18px 0;
+  overflow: hidden;
+  border-radius: 24px;
+  background: linear-gradient(180deg, #4b91ad, #315c68 75%, #1c302b);
+  box-shadow: inset 0 0 35px rgba(255,255,255,.08);
+  transition: background 1s ease;
+}
+
+.scene-sun {
+  position: absolute;
+  width: 75px;
+  height: 75px;
+  top: 28px;
+  right: 22%;
+  border-radius: 50%;
+  background: #ffd66b;
+  box-shadow: 0 0 25px 12px rgba(255,214,107,.25);
+  animation: sunGlow 3s ease-in-out infinite alternate;
+}
+
+.scene-cloud {
+  position: absolute;
+  width: 105px;
+  height: 35px;
+  background: #dce8e8;
+  border-radius: 40px;
+  top: 95px;
+  left: 10%;
+  animation: cloudMove 8s ease-in-out infinite alternate;
+}
+
+.scene-cloud::before,
+.scene-cloud::after {
+  content: "";
+  position: absolute;
+  background: inherit;
+  border-radius: 50%;
+}
+
+.scene-cloud::before {
+  width: 48px;
+  height: 48px;
+  top: -23px;
+  left: 17px;
+}
+
+.scene-cloud::after {
+  width: 58px;
+  height: 58px;
+  top: -30px;
+  right: 12px;
+}
+
+.cloud-two {
+  top: 135px;
+  left: 58%;
+  transform: scale(.75);
+  opacity: .8;
+  animation-delay: -3s;
+}
+
+.scene-rain,
+.scene-snow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .5s;
+}
+
+.scene-rain::before {
+  content: "│ │ │ │ │ │ │ │ │ │ │ │";
+  position: absolute;
+  top: 105px;
+  left: 15%;
+  color: #a8d9f5;
+  font-size: 22px;
+  letter-spacing: 10px;
+  line-height: 28px;
+  animation: rainFall .7s linear infinite;
+}
+
+.scene-snow::before {
+  content: "❄  ·  ❄  ·  ❄  ·  ❄";
+  position: absolute;
+  top: 100px;
+  left: 8%;
+  color: white;
+  font-size: 19px;
+  letter-spacing: 9px;
+  animation: snowFall 5s linear infinite;
+}
+
+.scene-lightning {
+  position: absolute;
+  top: 95px;
+  left: 48%;
+  color: #ffe66d;
+  font-size: 65px;
+  opacity: 0;
+}
+
+.scene-lightning::after {
+  content: "⚡";
+}
+
+.weather-scene.weather-sunny {
+  background: linear-gradient(180deg, #65b4d0, #367b91 75%, #24453e);
+}
+
+.weather-scene.weather-cloudy {
+  background: linear-gradient(180deg, #718c9b, #425d69 75%, #263d39);
+}
+
+.weather-scene.weather-rain,
+.weather-scene.weather-storm {
+  background: linear-gradient(180deg, #344653, #25363c 75%, #1c302b);
+}
+
+.weather-scene.weather-snow {
+  background: linear-gradient(180deg, #819eae, #526d7d 75%, #344b4b);
+}
+
+.weather-scene.weather-fog {
+  background: linear-gradient(180deg, #879797, #596a69 75%, #34443e);
+}
+
+.weather-scene.weather-sunny .scene-cloud {
+  opacity: .35;
+}
+
+.weather-scene.weather-cloudy .scene-sun,
+.weather-scene.weather-rain .scene-sun,
+.weather-scene.weather-snow .scene-sun,
+.weather-scene.weather-storm .scene-sun,
+.weather-scene.weather-fog .scene-sun,
+.weather-scene.weather-night .scene-sun {
+  opacity: 0;
+}
+
+.weather-scene.weather-rain .scene-rain,
+.weather-scene.weather-storm .scene-rain,
+.weather-scene.weather-snow .scene-snow {
+  opacity: 1;
+}
+
+.weather-scene.weather-storm .scene-lightning {
+  animation: lightningFlash 2.5s infinite;
+}
+
+.weather-scene.weather-cloudy .scene-cloud,
+.weather-scene.weather-rain .scene-cloud,
+.weather-scene.weather-snow .scene-cloud,
+.weather-scene.weather-storm .scene-cloud,
+.weather-scene.weather-fog .scene-cloud {
+  opacity: 1;
+}
+
+.weather-scene.weather-night {
+  background: linear-gradient(180deg, #101b38, #263044 75%, #17231f);
+}
+
+.weather-scene.weather-night::after {
+  content: "☾  ·  ✦  ·  ✧  ·  ✦";
+  position: absolute;
+  top: 25px;
+  right: 12%;
+  color: #fff2bd;
+  font-size: 28px;
+  letter-spacing: 5px;
+}
+
+.weather-scene.weather-night .scene-cloud {
+  background: #84909e;
+}
+
+@keyframes sunGlow {
+  from { transform: scale(1); }
+  to { transform: scale(1.1); }
+}
+
+@keyframes cloudMove {
+  from { margin-left: 0; }
+  to { margin-left: 35px; }
+}
+
+@keyframes rainFall {
+  from { transform: translateY(-8px); }
+  to { transform: translateY(25px); }
+}
+
+@keyframes snowFall {
+  from { transform: translateY(-15px); }
+  to { transform: translateY(45px); }
+}
+
+@keyframes lightningFlash {
+  0%, 85%, 100% { opacity: 0; }
+  88%, 92% { opacity: 1; }
+}
+
+/* TÖBBI MEGJELENÉS */
+
 .controls {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
   margin: 18px 0;
 }
+
 .field, .metric, .period-card, .recommend {
   background: var(--panel);
   border: 1px solid #3a4841;
   border-radius: 17px;
 }
-.field {
-  padding: 13px;
-}
+
+.field { padding: 13px; }
+
 label {
   display: block;
   font-size: 11px;
@@ -92,9 +316,9 @@ label {
   margin-bottom: 8px;
   text-transform: uppercase;
 }
-input, button {
-  font: inherit;
-}
+
+input, button { font: inherit; }
+
 input {
   width: 100%;
   background: transparent;
@@ -103,35 +327,39 @@ input {
   color: white;
   font-size: 16px;
 }
+
 .weather {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
   margin: 18px 0;
 }
+
 .metric {
   padding: 15px;
   min-width: 0;
 }
-.metric .icon {
-  font-size: 22px;
-}
+
+.metric .icon { font-size: 22px; }
+
 .metric strong {
   display: block;
   font-size: 23px;
   margin: 8px 0;
 }
+
 .metric small {
   color: var(--muted);
   font-size: 11px;
 }
+
 .section-title {
   font: bold 25px Georgia, serif;
   margin: 28px 0 14px;
 }
-.recommend {
-  overflow: hidden;
-}
+
+.recommend { overflow: hidden; }
+
 .recommend-head {
   padding: 18px;
   display: flex;
@@ -139,66 +367,76 @@ input {
   align-items: center;
   gap: 10px;
 }
+
 .recommend-head h2 {
   font-size: 17px;
   margin: 0;
 }
+
 .tag {
   background: var(--secondary);
   border-radius: 30px;
   padding: 7px 10px;
   font-size: 11px;
 }
+
 .outfit {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
   padding: 0 14px 15px;
 }
+
 .item {
   background: var(--panel2);
   border-radius: 14px;
   padding: 14px;
   min-height: 110px;
 }
-.item .emoji {
-  font-size: 26px;
-}
+
+.item .emoji { font-size: 26px; }
+
 .item b {
   display: block;
   margin: 8px 0 4px;
   font-size: 14px;
 }
+
 .item span {
   font-size: 12px;
   color: var(--muted);
 }
+
 .period-grid {
   display: grid;
   gap: 10px;
 }
-.period-card {
-  padding: 16px;
-}
+
+.period-card { padding: 16px; }
+
 .period-head {
   display: flex;
   justify-content: space-between;
   gap: 10px;
   margin-bottom: 10px;
 }
+
 .period-head h3 {
   margin: 0;
   font-size: 16px;
 }
+
 .period-meta {
   font-size: 12px;
   color: var(--muted);
 }
+
 .period-advice {
   font-size: 13px;
   line-height: 1.5;
   margin-top: 9px;
 }
+
 .tip {
   background: var(--secondary);
   padding: 17px;
@@ -207,11 +445,13 @@ input {
   line-height: 1.5;
   font-size: 13px;
 }
+
 .actions {
   display: flex;
   gap: 10px;
   margin: 18px 0;
 }
+
 button {
   border: 0;
   border-radius: 13px;
@@ -219,27 +459,37 @@ button {
   cursor: pointer;
   font-weight: bold;
 }
+
 .primary {
   background: var(--primary);
   color: white;
   flex: 1;
 }
+
 .secondary {
   background: var(--secondary);
   color: white;
 }
+
+button:disabled {
+  opacity: .5;
+  cursor: wait;
+}
+
 .status {
   min-height: 20px;
   font-size: 12px;
   color: var(--muted);
   line-height: 1.5;
 }
+
 footer {
   text-align: center;
   padding: 22px 0;
   color: var(--muted);
   font-size: 11px;
 }
+
 @media(max-width:520px) {
   .app { padding: 14px; }
   .controls { gap: 8px; }
@@ -264,6 +514,15 @@ footer {
   <h1>Jó érzés úgy elindulni, hogy jól választottál.</h1>
   <p class="sub">Valós időjárási adatok alapján segítünk kiválasztani a mai öltözékedet.</p>
 </section>
+
+<div class="weather-scene weather-cloudy" id="weatherScene">
+  <div class="scene-sun"></div>
+  <div class="scene-cloud cloud-one"></div>
+  <div class="scene-cloud cloud-two"></div>
+  <div class="scene-rain"></div>
+  <div class="scene-snow"></div>
+  <div class="scene-lightning"></div>
+</div>
 
 <div class="controls">
   <div class="field">
@@ -344,9 +603,11 @@ let requestNumber = 0;
 let selectedCoordinates = [47.4979, 19.0402];
 let selectedCity = "Budapest";
 let refreshTimer;
+let cityTimer;
 
 function clothingAdvice(temp, rain) {
   let advice;
+
   if (temp < 5) {
     advice = "Meleg kabát, pulóver, sál és zárt cipő";
   } else if (temp < 13) {
@@ -356,6 +617,7 @@ function clothingAdvice(temp, rain) {
   } else {
     advice = "Póló, könnyű nadrág és szellős cipő";
   }
+
   if (rain >= 50) advice += " · Esőkabát vagy esernyő";
   return advice;
 }
@@ -368,11 +630,39 @@ function getWeatherIcon(code) {
   if (code <= 67) return "🌧️";
   if (code <= 77) return "❄️";
   if (code <= 82) return "🌦️";
+  if (code <= 86) return "❄️";
   return "⛈️";
+}
+
+/* AUTOMATIKUS IDŐJÁRÁSI ANIMÁCIÓ */
+
+function updateWeatherScene(code, isDay) {
+  const scene = $("weatherScene");
+  let type = "cloudy";
+
+  if (code === 0) {
+    type = "sunny";
+  } else if (code <= 3) {
+    type = "cloudy";
+  } else if (code === 45 || code === 48) {
+    type = "fog";
+  } else if ([71, 73, 75, 77, 85, 86].includes(code)) {
+    type = "snow";
+  } else if ([95, 96, 99].includes(code)) {
+    type = "storm";
+  } else if (code >= 51 && code <= 67) {
+    type = "rain";
+  } else if (code >= 80 && code <= 82) {
+    type = "rain";
+  }
+
+  scene.className = "weather-scene weather-" + type +
+    (isDay ? "" : " weather-night");
 }
 
 function updateOutfit(temp, rain, wind) {
   let items, tag, tip;
+
   if (temp < 5) {
     items = [
       ["🧥","Meleg télikabát","Szélálló, bélelt kabát"],
@@ -423,6 +713,7 @@ function updateOutfit(temp, rain, wind) {
 
   $("weatherTag").textContent = tag;
   $("tipText").textContent = tip;
+
   $("outfit").innerHTML = items.map(item => `
     <div class="item">
       <div class="emoji">${item[0]}</div>
@@ -491,50 +782,71 @@ function renderForecast(data) {
 }
 
 async function findCity(name) {
-  const url = "https://geocoding-api.open-meteo.com/v1/search?name=" + encodeURIComponent(name) + "&count=5&language=hu&format=json";
+  const url = "https://geocoding-api.open-meteo.com/v1/search?name=" +
+    encodeURIComponent(name) + "&count=5&language=hu&format=json";
+
   const response = await fetch(url);
-  if (!response.ok) throw new Error("A település keresése nem sikerült.");
+
+  if (!response.ok) {
+    throw new Error("A település keresése nem sikerült.");
+  }
+
   const data = await response.json();
+
   if (!data.results || !data.results.length) {
     throw new Error("Nem találom ezt a települést.");
   }
+
   return data.results[0];
 }
 
 async function getCityNameFromCoords(lat, lon) {
   try {
     const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&accept-language=hu`;
-    const response = await fetch(url, {
-      headers: { "User-Agent": "MitVegyekFelMaApp" }
-    });
+    const response = await fetch(url);
+
     if (!response.ok) return null;
+
     const data = await response.json();
     const address = data.address;
+
     if (address) {
-      return address.city || address.town || address.village || address.municipality || address.county;
+      return address.city || address.town || address.village ||
+        address.municipality || address.county;
     }
   } catch (e) {
     console.warn("Helynév keresési hiba:", e);
   }
+
   return null;
 }
 
 async function loadWeather(coords, cityName) {
   const thisRequest = ++requestNumber;
+
   $("status").textContent = "Időjárási adatok lekérése...";
   $("refresh").disabled = true;
 
   try {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords[0]}&longitude=${coords[1]}&current=temperature_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m&hourly=temperature_2m,apparent_temperature,precipitation_probability,precipitation&forecast_days=2&timezone=auto`;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords[0]}&longitude=${coords[1]}&current=temperature_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,is_day&hourly=temperature_2m,apparent_temperature,precipitation_probability,precipitation&forecast_days=2&timezone=auto`;
+
     const response = await fetch(url);
-    if (!response.ok) throw new Error("Az időjárási szolgáltatás nem elérhető.");
+
+    if (!response.ok) {
+      throw new Error("Az időjárási szolgáltatás nem elérhető.");
+    }
 
     const data = await response.json();
+
     if (thisRequest !== requestNumber) return;
 
     const current = data.current;
     const timeIndex = data.hourly.time.indexOf(current.time);
-    const rain = timeIndex >= 0 ? (data.hourly.precipitation_probability[timeIndex] ?? 0) : 0;
+
+    const rain = timeIndex >= 0
+      ? (data.hourly.precipitation_probability[timeIndex] ?? 0)
+      : 0;
+
     const temp = current.temperature_2m;
     const feels = current.apparent_temperature;
     const wind = current.wind_speed_10m;
@@ -545,6 +857,9 @@ async function loadWeather(coords, cityName) {
     $("cityDisplay").textContent = cityName;
     $("weatherIcon").textContent = getWeatherIcon(current.weather_code);
 
+    // Az animáció automatikus frissítése
+    updateWeatherScene(current.weather_code, current.is_day);
+
     updateOutfit(feels, rain, wind);
     renderForecast(data);
 
@@ -552,10 +867,16 @@ async function loadWeather(coords, cityName) {
     selectedCity = cityName;
     $("city").value = cityName;
 
-    $("status").textContent = "Frissítve: " + new Date(current.time).toLocaleString("hu-HU") + " · Szél: " + Math.round(wind) + " km/h · Open-Meteo";
+    $("status").textContent =
+      "Frissítve: " +
+      new Date(current.time).toLocaleString("hu-HU") +
+      " · Szél: " + Math.round(wind) +
+      " km/h · Open-Meteo";
+
   } catch (error) {
     if (thisRequest === requestNumber) {
-      $("status").textContent = "Hiba: " + error.message + " Ellenőrizd az internetkapcsolatot.";
+      $("status").textContent =
+        "Hiba: " + error.message + " Ellenőrizd az internetkapcsolatot.";
     }
   } finally {
     if (thisRequest === requestNumber) {
@@ -564,100 +885,21 @@ async function loadWeather(coords, cityName) {
   }
 }
 
-let cityTimer;
 async function changeCity() {
   const name = $("city").value.trim();
+
   if (name.length < 2) return;
 
   clearTimeout(cityTimer);
+
   cityTimer = setTimeout(async () => {
     try {
       $("status").textContent = "Település keresése...";
+
       const result = await findCity(name);
-      const displayName = [result.name, result.admin1, result.country].filter(Boolean).join(", ");
-      await loadWeather([result.latitude, result.longitude], displayName);
-    } catch (error) {
-      $("status").textContent = error.message;
-    }
-  }, 700);
-}
 
-function useMyLocation() {
-  if (!navigator.geolocation) {
-    $("status").textContent = "A böngésző nem támogatja a helymeghatározást.";
-    return;
-  }
-  $("status").textContent = "GPS koordináták lekérése és város azonosítása...";
-
-  navigator.geolocation.getCurrentPosition(
-    async position => {
-      const lat = position.coords.latitude;
-      const lon = position.coords.longitude;
-      const coords = [lat, lon];
-
-      let cityName = await getCityNameFromCoords(lat, lon);
-      if (!cityName) {
-        cityName = `${lat.toFixed(4)}°, ${lon.toFixed(4)}°`;
-      }
-
-      loadWeather(coords, cityName);
-    },
-    (err) => {
-      console.warn("GPS Hiba:", err);
-      $("status").textContent = "A GPS helymeghatározás nem sikerült vagy le lett tiltva.";
-    },
-    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-  );
-}
-
-$("city").addEventListener("change", changeCity);
-$("city").addEventListener("keydown", event => {
-  if (event.key === "Enter") {
-    clearTimeout(cityTimer);
-    changeCity();
-  }
-});
-
-$("refresh").addEventListener("click", () => {
-  loadWeather(selectedCoordinates, selectedCity);
-});
-
-$("myLocation").addEventListener("click", useMyLocation);
-
-// MÓDOSÍTVA: Induláskor azonnal megpróbálja lekérni a saját helyet!
-function startApp() {
-  if (navigator.geolocation) {
-    $("status").textContent = "Saját helymeghatározás induláskor...";
-    navigator.geolocation.getCurrentPosition(
-      async position => {
-        const lat = position.coords.latitude;
-        const lon = position.coords.longitude;
-        const coords = [lat, lon];
-
-        let cityName = await getCityNameFromCoords(lat, lon);
-        if (!cityName) {
-          cityName = `${lat.toFixed(4)}°, ${lon.toFixed(4)}°`;
-        }
-
-        loadWeather(coords, cityName);
-      },
-      () => {
-        // Ha a felhasználó elutasítja az engedélyt, visszaesik Budapestre
-        loadWeather(selectedCoordinates, selectedCity);
-      },
-      { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
-    );
-  } else {
-    loadWeather(selectedCoordinates, selectedCity);
-  }
-
-  clearInterval(refreshTimer);
-  refreshTimer = setInterval(() => {
-    loadWeather(selectedCoordinates, selectedCity);
-  }, 15 * 60 * 1000);
-}
-
-startApp();
-</script>
-</body>
-</html>
+      const displayName = [
+        result.name,
+        result.admin1,
+        result.country
+      ].filter(Boolean).join(", ")
