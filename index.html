@@ -3,1018 +3,210 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#14221d">
-<title>Mit vegyek fel ma?</title>
-
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6276632160461378"
-crossorigin="anonymous"></script>
-
+<meta name="theme-color" content="#123b2d">
+<title>Találtam! – Elveszett és megtalált tárgyak</title>
 <style>
 :root {
-  color-scheme: dark;
-  --bg: #14221d;
-  --panel: #202b27;
-  --panel2: #293630;
-  --primary: #315c50;
-  --secondary: #294239;
-  --text: #ffffff;
-  --muted: #bdc9c2;
+  --site-primary: #174b38;
+  --site-on-primary: #ffffff;
+  --site-secondary: #d9eee2;
+  --site-on-secondary: #173b2d;
+  --site-background: #f4f7f3;
+  --site-on-background: #18251e;
+  --site-font-body: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --site-font-heading: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --site-heading-scale: 1;
+  --site-spacing-scale: 1;
+  --site-radius-scale: 1;
+  --site-decoration-opacity: 1;
+  --surface: light-dark(#ffffff, #17231d);
+  --surface-soft: light-dark(#edf4ee, #202f27);
+  --ink: light-dark(#18251e, #edf5ef);
+  --muted: light-dark(#65756b, #aab9ae);
+  --line: light-dark(#dce6dd, #34463a);
+  --accent: #d9a441;
+  --danger: #b94b43;
+  color-scheme: light dark;
 }
-
 * { box-sizing: border-box; }
-
-body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: Arial, sans-serif;
-}
-
-.app {
-  min-height: 100vh;
-  padding: 20px;
-}
-
-.shell {
-  width: min(100%, 760px);
-  margin: auto;
-}
-
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 0 22px;
-}
-
-.brand {
-  font-weight: bold;
-  font-size: 17px;
-}
-
-.pill {
-  border: 1px solid #526158;
-  border-radius: 30px;
-  padding: 8px 12px;
-  font-size: 11px;
-}
-
-.hero {
-  background: var(--primary);
-  border-radius: 25px;
-  padding: 28px;
-}
-
-.eyebrow {
-  font-size: 11px;
-  letter-spacing: 2px;
-  opacity: .8;
-}
-
-h1 {
-  font-family: Georgia, serif;
-  font-size: clamp(28px, 6vw, 38px);
-  line-height: 1.1;
-  margin: 12px 0;
-}
-
-.sub {
-  font-size: 14px;
-  line-height: 1.5;
-  color: #e4eee8;
-}
-
-/* IDŐJÁRÁSI JELENET ÉS AI KARAKTER */
-
-.weather-scene {
-  position: relative;
-  height: 220px;
-  margin: 18px 0;
-  overflow: hidden;
-  border-radius: 24px;
-  background: linear-gradient(180deg, #4b91ad, #315c68 75%, #1c302b);
-  box-shadow: inset 0 0 35px rgba(255,255,255,.08);
-  transition: background 1s ease;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-}
-
-.scene-sun {
-  position: absolute;
-  width: 75px;
-  height: 75px;
-  top: 28px;
-  right: 22%;
-  border-radius: 50%;
-  background: #ffd66b;
-  box-shadow: 0 0 25px 12px rgba(255,214,107,.25);
-  animation: sunGlow 3s ease-in-out infinite alternate;
-}
-
-.scene-cloud {
-  position: absolute;
-  width: 105px;
-  height: 35px;
-  background: #dce8e8;
-  border-radius: 40px;
-  top: 95px;
-  left: 10%;
-  animation: cloudMove 8s ease-in-out infinite alternate;
-}
-
-.scene-cloud::before,
-.scene-cloud::after {
-  content: "";
-  position: absolute;
-  background: inherit;
-  border-radius: 50%;
-}
-
-.scene-cloud::before {
-  width: 48px;
-  height: 48px;
-  top: -23px;
-  left: 17px;
-}
-
-.scene-cloud::after {
-  width: 58px;
-  height: 58px;
-  top: -30px;
-  right: 12px;
-}
-
-.cloud-two {
-  top: 135px;
-  left: 58%;
-  transform: scale(.75);
-  opacity: .8;
-  animation-delay: -3s;
-}
-
-.scene-rain,
-.scene-snow {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity .5s;
-  z-index: 2;
-}
-
-.scene-rain::before {
-  content: "│ │ │ │ │ │ │ │ │ │ │ │";
-  position: absolute;
-  top: 105px;
-  left: 15%;
-  color: #a8d9f5;
-  font-size: 22px;
-  letter-spacing: 10px;
-  line-height: 28px;
-  animation: rainFall .7s linear infinite;
-}
-
-.scene-snow::before {
-  content: "❄  ·  ❄  ·  ❄  ·  ❄";
-  position: absolute;
-  top: 100px;
-  left: 8%;
-  color: white;
-  font-size: 19px;
-  letter-spacing: 9px;
-  animation: snowFall 5s linear infinite;
-}
-
-.scene-lightning {
-  position: absolute;
-  top: 95px;
-  left: 48%;
-  color: #ffe66d;
-  font-size: 65px;
-  opacity: 0;
-}
-
-.scene-lightning::after {
-  content: "⚡";
-}
-
-/* AI KARAKTER ANIMÁCIÓ ÉS STÍLUS */
-.ai-character {
-  position: relative;
-  z-index: 3;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  animation: characterFloat 3s ease-in-out infinite;
-  margin-bottom: 5px;
-}
-
-.avatar-head {
-  width: 32px;
-  height: 36px;
-  background: #f5d0b1;
-  border-radius: 50% 50% 40% 40%;
-  position: relative;
-}
-
-.avatar-hair {
-  position: absolute;
-  top: -4px;
-  left: -4px;
-  right: -4px;
-  height: 22px;
-  background: #6b4423;
-  border-radius: 50% 50% 20% 20%;
-  z-index: 1;
-}
-
-.avatar-body {
-  width: 48px;
-  height: 60px;
-  background: var(--primary);
-  border-radius: 12px 12px 6px 6px;
-  position: relative;
-  margin-top: -4px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  transition: background 0.5s ease;
-}
-
-.avatar-accessory {
-  position: absolute;
-  right: -22px;
-  top: 10px;
-  font-size: 24px;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.weather-scene.weather-rain .avatar-accessory,
-.weather-scene.weather-storm .avatar-accessory {
-  opacity: 1;
-}
-
-.weather-scene.weather-sunny .avatar-body { background: #e09f3e; }
-.weather-scene.weather-snow .avatar-body { background: #4a6fa5; }
-.weather-scene.weather-rain .avatar-body { background: #2a9d8f; }
-
-@keyframes characterFloat {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-6px) rotate(1deg); }
-}
-
-.weather-scene.weather-sunny {
-  background: linear-gradient(180deg, #65b4d0, #367b91 75%, #24453e);
-}
-
-.weather-scene.weather-cloudy {
-  background: linear-gradient(180deg, #718c9b, #425d69 75%, #263d39);
-}
-
-.weather-scene.weather-rain,
-.weather-scene.weather-storm {
-  background: linear-gradient(180deg, #344653, #25363c 75%, #1c302b);
-}
-
-.weather-scene.weather-snow {
-  background: linear-gradient(180deg, #819eae, #526d7d 75%, #344b4b);
-}
-
-.weather-scene.weather-fog {
-  background: linear-gradient(180deg, #879797, #596a69 75%, #34443e);
-}
-
-.weather-scene.weather-sunny .scene-cloud {
-  opacity: .35;
-}
-
-.weather-scene.weather-cloudy .scene-sun,
-.weather-scene.weather-rain .scene-sun,
-.weather-scene.weather-snow .scene-sun,
-.weather-scene.weather-storm .scene-sun,
-.weather-scene.weather-fog .scene-sun,
-.weather-scene.weather-night .scene-sun {
-  opacity: 0;
-}
-
-.weather-scene.weather-rain .scene-rain,
-.weather-scene.weather-storm .scene-rain,
-.weather-scene.weather-snow .scene-snow {
-  opacity: 1;
-}
-
-.weather-scene.weather-storm .scene-lightning {
-  animation: lightningFlash 2.5s infinite;
-}
-
-.weather-scene.weather-cloudy .scene-cloud,
-.weather-scene.weather-rain .scene-cloud,
-.weather-scene.weather-snow .scene-cloud,
-.weather-scene.weather-storm .scene-cloud,
-.weather-scene.weather-fog .scene-cloud {
-  opacity: 1;
-}
-
-.weather-scene.weather-night {
-  background: linear-gradient(180deg, #101b38, #263044 75%, #17231f);
-}
-
-.weather-scene.weather-night::after {
-  content: "☾  ·  ✦  ·  ✧  ·  ✦";
-  position: absolute;
-  top: 25px;
-  right: 12%;
-  color: #fff2bd;
-  font-size: 28px;
-  letter-spacing: 5px;
-}
-
-.weather-scene.weather-night .scene-cloud {
-  background: #84909e;
-}
-
-@keyframes sunGlow {
-  from { transform: scale(1); }
-  to { transform: scale(1.1); }
-}
-
-@keyframes cloudMove {
-  from { margin-left: 0; }
-  to { margin-left: 35px; }
-}
-
-@keyframes rainFall {
-  from { transform: translateY(-8px); }
-  to { transform: translateY(25px); }
-}
-
-@keyframes snowFall {
-  from { transform: translateY(-15px); }
-  to { transform: translateY(45px); }
-}
-
-@keyframes lightningFlash {
-  0%, 85%, 100% { opacity: 0; }
-  88%, 92% { opacity: 1; }
-}
-
-/* TÖBBI MEGJELENÉS */
-
-.controls {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin: 18px 0;
-}
-
-.field, .metric, .period-card, .recommend {
-  background: var(--panel);
-  border: 1px solid #3a4841;
-  border-radius: 17px;
-}
-
-.field { padding: 13px; }
-
-label {
-  display: block;
-  font-size: 11px;
-  color: var(--muted);
-  margin-bottom: 8px;
-  text-transform: uppercase;
-}
-
-input, button { font: inherit; }
-
-input {
-  width: 100%;
-  background: transparent;
-  border: 0;
-  outline: none;
-  color: white;
-  font-size: 16px;
-}
-
-.weather {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin: 18px 0;
-}
-
-.metric {
-  padding: 15px;
-  min-width: 0;
-}
-
-.metric .icon { font-size: 22px; }
-
-.metric strong {
-  display: block;
-  font-size: 23px;
-  margin: 8px 0;
-}
-
-.metric small {
-  color: var(--muted);
-  font-size: 11px;
-}
-
-.section-title {
-  font: bold 25px Georgia, serif;
-  margin: 28px 0 14px;
-}
-
-.recommend { overflow: hidden; }
-
-.recommend-head {
-  padding: 18px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-}
-
-.recommend-head h2 {
-  font-size: 17px;
-  margin: 0;
-}
-
-.tag {
-  background: var(--secondary);
-  border-radius: 30px;
-  padding: 7px 10px;
-  font-size: 11px;
-}
-
-.outfit {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  padding: 0 14px 15px;
-}
-
-.item {
-  background: var(--panel2);
-  border-radius: 14px;
-  padding: 14px;
-  min-height: 110px;
-}
-
-.item .emoji { font-size: 26px; }
-
-.item b {
-  display: block;
-  margin: 8px 0 4px;
-  font-size: 14px;
-}
-
-.item span {
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.period-grid {
-  display: grid;
-  gap: 10px;
-}
-
-.period-card { padding: 16px; }
-
-.period-head {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.period-head h3 {
-  margin: 0;
-  font-size: 16px;
-}
-
-.period-meta {
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.period-advice {
-  font-size: 13px;
-  line-height: 1.5;
-  margin-top: 9px;
-}
-
-.tip {
-  background: var(--secondary);
-  padding: 17px;
-  border-radius: 17px;
-  margin-top: 15px;
-  line-height: 1.5;
-  font-size: 13px;
-}
-
-.actions {
-  display: flex;
-  gap: 10px;
-  margin: 18px 0;
-}
-
-button {
-  border: 0;
-  border-radius: 13px;
-  padding: 14px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.primary {
-  background: var(--primary);
-  color: white;
-  flex: 1;
-}
-
-.secondary {
-  background: var(--secondary);
-  color: white;
-}
-
-button:disabled {
-  opacity: .5;
-  cursor: wait;
-}
-
-.status {
-  min-height: 20px;
-  font-size: 12px;
-  color: var(--muted);
-  line-height: 1.5;
-}
-
-footer {
-  text-align: center;
-  padding: 22px 0;
-  color: var(--muted);
-  font-size: 11px;
-}
-
-@media(max-width:520px) {
-  .app { padding: 14px; }
-  .controls { gap: 8px; }
-  .metric { padding: 11px 8px; }
-  .metric strong { font-size: 19px; }
-  .actions { flex-wrap: wrap; }
-}
+body { margin: 0; font-family: var(--site-font-body); background:radial-gradient(ellipse at 8% 35%,#dceee3 0,transparent 32%),radial-gradient(ellipse at 92% 72%,#f5ead6 0,transparent 27%),var(--site-background); color: var(--site-on-background); }
+#app { min-height: 100vh; width: 100%; border-radius: 0; background:transparent; color: var(--site-on-background); overflow: hidden; }
+button, input, select, textarea { font: inherit; }
+button { cursor: pointer; }
+.topbar { background:linear-gradient(110deg,#102f26,#174b38 65%,#23634a);color:var(--site-on-primary);padding:15px max(20px, calc((100% - 1120px)/2));display:flex;align-items:center;justify-content:space-between;gap:16px;box-shadow:0 8px 28px #10271920;position:relative;z-index:3; }
+.brand { display:flex; align-items:center; gap:10px; font-weight:850; letter-spacing:-.7px; font-size:22px; }
+.brand-mark { width:38px;height:38px;border-radius:13px;background:linear-gradient(145deg,#f5d58d,#d9a441);color:#173b2d;display:grid;place-items:center;font-size:22px;box-shadow:0 5px 16px #071c1440; }
+.nav { display:flex; gap:8px; align-items:center; }
+.nav button { border:1px solid #ffffff35;color:white;background:#ffffff0b;border-radius:999px;padding:10px 15px;font-size:13px;font-weight:700;transition:background .2s,transform .2s; }
+.nav button:hover { background:#ffffff20;transform:translateY(-1px); }
+.nav button.primary-nav { background:#e7f2e9;color:#174b38;border-color:#e7f2e9; }
+.hero { background:var(--site-primary); color:white; padding:58px 20px 76px; position:relative; }
+.hero { background:radial-gradient(ellipse at 82% 18%,#3c9b75 0,transparent 29%),radial-gradient(ellipse at 12% 95%,#b68b42 0,transparent 24%),linear-gradient(125deg,#102e27 0%,#14523d 48%,#173d36 100%); overflow:hidden; }
+.hero:before { content:"⌕";position:absolute;right:8%;top:2%;font-size:clamp(220px,30vw,390px);line-height:1;font-weight:300;color:#ffffff0d;transform:rotate(-18deg);text-shadow:0 0 1px #ffffff18;pointer-events:none; }
+.hero:after { content:"🔑     👛     🎧";position:absolute;right:10%;bottom:22px;padding:15px 22px;border:1px solid #ffffff28;border-radius:18px;background:#ffffff0d;backdrop-filter:blur(8px);font-size:clamp(20px,3vw,30px);letter-spacing:7px;box-shadow:0 12px 35px #061d1530;pointer-events:none; }
+.hero-inner { max-width:1120px;margin:auto;position:relative;z-index:1; }
+.eyebrow { color:#c4e2ce;text-transform:uppercase;letter-spacing:2px;font-size:11px;font-weight:800; }
+h1 { font-family:var(--site-font-heading);font-size:calc(48px * var(--site-heading-scale));line-height:1.04;letter-spacing:-2.8px;max-width:700px;margin:14px 0 14px; }
+.hero p { color:#d9e9de;max-width:600px;line-height:1.65;font-size:16px;margin:0 0 26px; }
+.searchbar { display:flex;gap:9px;background:white;padding:8px;border-radius:16px;max-width:760px;box-shadow:0 16px 42px #09271935; }
+.hero-inner:before { content:"ELVESZETT  ·  MEGTALÁLT";position:absolute;right:3%;top:22px;color:#d9eee2a8;font-size:10px;font-weight:850;letter-spacing:2px; }
+.hero-inner:after { content:"";position:absolute;right:15%;top:85px;width:145px;height:145px;border:1px solid #ffffff22;border-radius:50%;box-shadow:0 0 0 18px #ffffff08,0 0 0 38px #ffffff06;pointer-events:none; }
+.searchbar input { flex:1;min-width:0;border:0;outline:0;color:#1b2b21;padding:10px 12px;background:white; }
+.btn { border:0;border-radius:12px;padding:12px 17px;font-weight:800;transition:.15s; }
+.btn:hover { transform:translateY(-1px); }
+.btn-gold { background:#e4b34e;color:#2d281a; }
+.btn-green { background:var(--site-primary);color:white; }
+.btn-light { background:#e7f1e9;color:#174b38; }
+main { max-width:1120px;margin:-32px auto 0;padding:0 20px 70px;position:relative;z-index:2; }
+.stats { display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px; }
+.stat { background:linear-gradient(145deg,#ffffff,#f4f8f4);border:1px solid #dce8de;border-radius:20px;padding:20px 21px;box-shadow:0 10px 28px #1027190d;position:relative;overflow:hidden; }
+.stat:after { content:"";position:absolute;width:76px;height:76px;right:-25px;bottom:-35px;border:1px solid #4b8d681c;border-radius:50%;box-shadow:0 0 0 12px #4b8d6808; }
+.stat strong { display:block;font-size:24px;letter-spacing:-1px;color:var(--site-primary); }
+.stat span { color:var(--muted);font-size:12px;font-weight:650; }
+.section-head { display:flex;align-items:end;justify-content:space-between;gap:16px;margin:34px 0 16px;padding-bottom:13px;border-bottom:1px solid #dce8de; }
+.section-head h2 { margin:0;font-size:23px;letter-spacing:-.8px; }
+.section-head p { margin:5px 0 0;color:var(--muted);font-size:13px; }
+.filters { display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 18px; }
+.chip { border:1px solid #dce6dd;background:#ffffffd9;color:var(--ink);padding:9px 15px;border-radius:999px;font-size:12px;font-weight:750;box-shadow:0 3px 10px #10271908;transition:.18s; }
+.chip:hover { border-color:#8eb49a;transform:translateY(-1px); }
+.chip.active { background:linear-gradient(120deg,#174b38,#28704f);border-color:#174b38;color:white;box-shadow:0 5px 14px #174b3830; }
+.listings { display:grid;grid-template-columns:repeat(3,1fr);gap:14px; }
+.item { background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 8px 24px #1027190b;transition:transform .2s,box-shadow .2s; }
+.item:hover { transform:translateY(-4px);box-shadow:0 16px 34px #10271918; }
+.item-top { height:126px;background:radial-gradient(circle at 75% 20%,#ffffffa8,transparent 34%),linear-gradient(135deg,#e7f3e9,#c7dfce);display:grid;place-items:center;font-size:49px;position:relative; }
+.item-top.lost { background:radial-gradient(circle at 75% 20%,#ffffffa8,transparent 34%),linear-gradient(135deg,#fbf0df,#efd5b3); }
+.tag { position:absolute;left:12px;top:12px;background:white;color:#174b38;border-radius:999px;padding:5px 9px;font-size:10px;font-weight:850; }
+.item-body { padding:15px; }
+.item-body h3 { margin:0 0 7px;font-size:16px; }
+.item-body p { margin:0;color:var(--muted);font-size:12px;line-height:1.5; }
+.item-meta { display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:11px;color:var(--muted); }
+.item-meta button { border:0;background:transparent;color:var(--site-primary);font-weight:850;font-size:11px; }
+.empty { grid-column:1/-1;padding:32px;text-align:center;border:1px dashed var(--line);border-radius:16px;color:var(--muted); }
+.how { display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:38px; }
+.how-card { background:linear-gradient(145deg,#ffffffed,#edf5ef);border:1px solid #dce8de;border-radius:19px;padding:21px;box-shadow:0 8px 24px #1027190b;transition:transform .2s,box-shadow .2s; }
+.how-card:hover { transform:translateY(-3px);box-shadow:0 14px 30px #10271913; }
+.how-card b { display:block;margin:10px 0 6px; }
+.how-card p { margin:0;color:var(--muted);font-size:12px;line-height:1.55; }
+.icon { width:40px;height:40px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(145deg,#dff0e3,#c5e0ce);color:var(--site-on-secondary);font-size:19px;box-shadow:inset 0 1px #ffffffb8; }
+footer { border-top:1px solid #dce8de;background:linear-gradient(110deg,#102f26,#174b38);padding:27px 20px;text-align:center;color:#d6e8dc;font-size:12px; }
+.modal-backdrop { position:fixed;inset:0;background:#07150dcc;display:none;align-items:center;justify-content:center;padding:16px;z-index:10; }
+.modal-backdrop.open { display:flex; }
+.modal { width:min(540px,100%);max-height:90vh;overflow:auto;background:var(--surface);color:var(--ink);border-radius:20px;padding:23px;box-shadow:0 24px 80px #0005; }
+.modal-head { display:flex;justify-content:space-between;align-items:center;margin-bottom:16px; }
+.modal-head h2 { margin:0;font-size:22px; }
+.close { border:0;background:var(--surface-soft);color:var(--ink);width:34px;height:34px;border-radius:50%;font-size:19px; }
+.field { margin:12px 0; }
+.field label { display:block;font-size:12px;font-weight:800;margin-bottom:6px; }
+.field input,.field select,.field textarea { width:100%;padding:12px;border:1px solid var(--line);border-radius:11px;background:var(--surface);color:var(--ink);outline-color:#4b8d68; }
+.field textarea { min-height:76px;resize:vertical; }
+.form-grid { display:grid;grid-template-columns:1fr 1fr;gap:10px; }
+.notice { background:var(--surface-soft);border-radius:12px;padding:11px 13px;color:var(--muted);font-size:11px;line-height:1.5;margin:12px 0; }
+.match { background:#e8f3e9;color:#1a4c35;border-radius:12px;padding:12px;margin-top:10px;font-size:12px; }
+.toast { position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#173f30;color:white;padding:12px 17px;border-radius:999px;box-shadow:0 8px 30px #0003;display:none;z-index:20;font-size:13px; }
+@media(max-width:760px){h1{font-size:39px;letter-spacing:-2px}.hero{padding:42px 20px 65px}.hero:before{right:-85px;top:80px;font-size:220px}.hero:after{right:18px;bottom:12px;font-size:17px;padding:10px 13px;letter-spacing:3px}.hero-inner:before,.hero-inner:after{display:none}.topbar{padding:12px 16px}.nav button:not(.primary-nav){display:none}.listings{grid-template-columns:repeat(2,1fr)}.stats{gap:8px}.stat{padding:15px 13px}.stat strong{font-size:20px}.how{grid-template-columns:1fr}.section-head{align-items:start;flex-direction:column}}
+@media(max-width:480px){.listings{grid-template-columns:1fr}.searchbar{flex-wrap:wrap}.searchbar input{flex-basis:100%}.searchbar button{width:100%}.stats{grid-template-columns:1fr 1fr}.stat:last-child{display:none}.form-grid{grid-template-columns:1fr}h1{font-size:35px}}
 </style>
 </head>
-
 <body>
-<main class="app">
-<div class="shell">
-
-<header>
-  <div class="brand">☀ Mit vegyek fel ma?</div>
-  <div class="pill">NAPI ÖLTÖZKÖDÉSI TIPP</div>
+<div id="app">
+<header class="topbar">
+  <div class="brand"><span class="brand-mark">⌕</span> Találtam<span style="color:#e4b34e">!</span></div>
+  <nav class="nav"><button onclick="scrollToListings()">Keresés</button><button onclick="showHow()">Hogyan működik?</button><button class="primary-nav" onclick="openModal()">＋ Bejelentés</button></nav>
 </header>
-
 <section class="hero">
-  <div class="eyebrow">A napodhoz öltözve</div>
-  <h1>Jó érzés úgy elindulni, hogy jól választottál.</h1>
-  <p class="sub">Valós időjárási adatok alapján segítünk kiválasztani a mai öltözékedet és programot.</p>
-</section>
-
-<!-- IDŐJÁRÁSI JELENET ÉS ANIMÁLT AI KARAKTER -->
-<div class="weather-scene weather-cloudy" id="weatherScene">
-  <div class="scene-sun"></div>
-  <div class="scene-cloud cloud-one"></div>
-  <div class="scene-cloud cloud-two"></div>
-  <div class="scene-rain"></div>
-  <div class="scene-snow"></div>
-  <div class="scene-lightning"></div>
-  
-  <div class="ai-character" id="aiCharacter">
-    <div class="avatar-head">
-      <div class="avatar-hair"></div>
-    </div>
-    <div class="avatar-body">
-      <div class="avatar-accessory" id="avatarAccessory">🌂</div>
-    </div>
-  </div>
-</div>
-
-<div class="controls">
-  <div class="field">
-    <label for="city">Település</label>
-    <input id="city" type="text" value="Budapest" placeholder="Írd be a települést">
-  </div>
-  <div class="field">
-    <label>Adatok forrása</label>
-    <input value="Automatikus időjárás" readonly>
-  </div>
-</div>
-
-<div class="weather">
-  <div class="metric">
-    <div class="icon" id="weatherIcon">🌤️</div>
-    <strong id="tempDisplay">--°</strong>
-    <small id="cityDisplay">Budapest</small>
-  </div>
-  <div class="metric">
-    <div class="icon">🌡️</div>
-    <strong id="feelsDisplay">--°</strong>
-    <small>Hőérzet</small>
-  </div>
-  <div class="metric">
-    <div class="icon">☔</div>
-    <strong id="rainDisplay">--%</strong>
-    <small>Eső esélye</small>
-  </div>
-</div>
-
-<h2 class="section-title">Ezt ajánljuk mára</h2>
-
-<section class="recommend">
-  <div class="recommend-head">
-    <h2>Mai összeállításod</h2>
-    <span class="tag" id="weatherTag">Betöltés...</span>
-  </div>
-  <div class="outfit" id="outfit">
-    <div class="item">Időjárási adatok betöltése...</div>
+  <div class="hero-inner">
+    <div class="eyebrow">Együtt könnyebb megtalálni</div>
+    <h1>Elveszett valami?<br>Segítünk hazatalálni.</h1>
+    <p>Országos közösségi kereső elveszett és megtalált tárgyakhoz. Tegyél közzé bejelentést, vagy keress rá arra, amit valaki megtalált.</p>
+    <div class="searchbar"><input id="heroSearch" placeholder="Mit keresel? Pl. fekete pénztárca, kulcs..." onkeydown="if(event.key==='Enter')searchItems()"><button class="btn btn-gold" onclick="searchItems()">Keresés →</button></div>
   </div>
 </section>
-
-<div class="tip">
-  🎯 <strong>Mit lehet csinálni ma? (Programajánló)</strong>
-  <p id="activityText">Az időjárásnak megfelelő programok betöltése...</p>
-</div>
-
-<h2 class="section-title">Így alakul a napod</h2>
-<div class="period-grid" id="hourlyForecast">
-  <p class="status">Előrejelzés betöltése...</p>
-</div>
-
-<div class="tip">
-  💡 <strong>Mai tanács</strong>
-  <p id="tipText">Az ajánlás az időjárási adatok alapján készül.</p>
-</div>
-
-<h2 class="section-title">Óránkénti előrejelzés</h2>
-<div class="period-grid" id="hourList"></div>
-
-<div class="actions">
-  <button class="primary" id="refresh">Időjárás frissítése</button>
-  <button class="secondary" id="myLocation">Saját helyem (GPS)</button>
-</div>
-
-<p class="status" id="status" role="status">
-  Időjárási adatok betöltése...
-</p>
-
-<p class="status">
-  Az adatok forrása: Open-Meteo. Automatikus frissítés 15 percenként.
-</p>
-
-<footer>Mit vegyek fel ma? · Öltözz az időjáráshoz.</footer>
-
-</div>
+<main>
+  <div class="stats">
+    <div class="stat"><strong id="countAll">6</strong><span>Bejelentés a mintában</span></div>
+    <div class="stat"><strong id="countLost">3</strong><span>Elveszett tárgy</span></div>
+    <div class="stat"><strong id="countFound">3</strong><span>Megtalált tárgy</span></div>
+  </div>
+  <div class="section-head" id="listingTitle"><div><h2>Friss bejelentések</h2><p>Mintabejegyzések – próbáld ki a keresőt és a szűrőket.</p></div><button class="btn btn-green" onclick="openModal()">＋ Új bejelentés</button></div>
+  <div class="filters">
+    <button class="chip active" data-filter="all" onclick="setFilter('all',this)">Mindegyik</button>
+    <button class="chip" data-filter="lost" onclick="setFilter('lost',this)">Elveszett</button>
+    <button class="chip" data-filter="found" onclick="setFilter('found',this)">Megtalált</button>
+    <select id="cityFilter" class="chip" onchange="render()"><option value="">Minden település</option><option>Budapest</option><option>Debrecen</option><option>Szeged</option><option>Győr</option><option>Pécs</option></select>
+  </div>
+  <div class="listings" id="listings"></div>
+  <section class="how" id="how">
+    <div class="how-card"><div class="icon">＋</div><b>1. Jelentsd be</b><p>Add meg, mit veszítettél el vagy mit találtál, hol és mikor történt. Személyes adatot ne tegyél közzé.</p></div>
+    <div class="how-card"><div class="icon">⌕</div><b>2. Keress egyezést</b><p>A kereső segít megtalálni a hasonló tárgyakat. A rendszer a kategóriát, leírást és települést is figyelembe veszi.</p></div>
+    <div class="how-card"><div class="icon">✓</div><b>3. Egyeztess biztonságosan</b><p>Ha találtál egy lehetséges egyezést, ellenőrizd a tulajdonjogot, és csak biztonságos módon szervezz átadást.</p></div>
+  </section>
+  <div class="notice" style="margin-top:28px"><b>Fontos:</b> Ez egy első prototípus. A bejelentések jelenleg csak ezen a böngészőn és eszközön tárolódnak, nem jelennek meg más látogatóknál. Ne tölts fel okmányfotót, pontos lakcímet, telefonszámot vagy más érzékeny adatot. A nyilvános, országos működéshez közös adatbázist, moderálást és biztonságos kapcsolatfelvételt építünk.</div>
 </main>
-
+<footer>Találtam! · Közösségi segítség elveszett és megtalált tárgyakhoz · Tesztverzió</footer>
+</div>
+<div class="modal-backdrop" id="modalBackdrop" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-head"><h2>Új bejelentés</h2><button class="close" onclick="closeModal()">×</button></div>
+    <form id="reportForm">
+      <div class="form-grid">
+        <div class="field"><label for="kind">Bejelentés típusa</label><select id="kind"><option value="lost">Elveszett tárgy</option><option value="found">Megtalált tárgy</option></select></div>
+        <div class="field"><label for="category">Kategória</label><select id="category"><option>Elektronika</option><option>Pénztárca / táska</option><option>Kulcs</option><option>Irat</option><option>Ékszer</option><option>Ruházat</option><option>Állat</option><option>Egyéb</option></select></div>
+      </div>
+      <div class="field"><label for="itemName">Mi veszett el / mit találtál?</label><input id="itemName" required maxlength="70" placeholder="Pl. fekete bőr pénztárca"></div>
+      <div class="form-grid">
+        <div class="field"><label for="city">Település</label><input id="city" required maxlength="50" placeholder="Pl. Debrecen"></div>
+        <div class="field"><label for="date">Dátum</label><input id="date" type="date" required></div>
+      </div>
+      <div class="field"><label for="description">Részletek (opcionális)</label><textarea id="description" maxlength="240" placeholder="Szín, ismertetőjegy, környék – érzékeny adatot ne írj ide."></textarea></div>
+      <div class="notice">Biztonság: ne add meg a teljes okmányszámot, bankkártyaadatot, pontos lakcímet vagy telefonszámot. A bejegyzés most csak a saját böngésződben lesz látható.</div>
+      <div id="matches"></div>
+      <button class="btn btn-green" style="width:100%;margin-top:12px" type="submit">Bejelentés mentése</button>
+    </form>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
 <script>
-const $ = id => document.getElementById(id);
-
-let requestNumber = 0;
-let selectedCoordinates = [47.4979, 19.0402];
-let selectedCity = "Budapest";
-let refreshTimer;
-let cityTimer;
-
-function clothingAdvice(temp, rain) {
-  let advice;
-  if (temp < 5) {
-    advice = "Meleg kabát, pulóver, sál és zárt cipő";
-  } else if (temp < 13) {
-    advice = "Pulóver, átmeneti kabát és hosszú nadrág";
-  } else if (temp < 21) {
-    advice = "Réteges felső és könnyű kabát";
-  } else {
-    advice = "Póló, könnyű nadrág és szellős cipő";
-  }
-  if (rain >= 50) advice += " · Esőkabát vagy esernyő";
-  return advice;
+const seed = [
+ {id:1,kind:'found',category:'Elektronika',name:'Fekete vezeték nélküli fülhallgató',city:'Debrecen',date:'2026-11-04',desc:'Egy park közelében találták.',emoji:'🎧'},
+ {id:2,kind:'lost',category:'Pénztárca / táska',name:'Barna bőr pénztárca',city:'Budapest',date:'2026-11-03',desc:'Kisebb, barna színű pénztárca.',emoji:'👛'},
+ {id:3,kind:'found',category:'Kulcs',name:'Egy darab kulcs kék kulcstartóval',city:'Szeged',date:'2026-11-02',desc:'Buszmegálló közelében találták.',emoji:'🔑'},
+ {id:4,kind:'lost',category:'Elektronika',name:'Fekete Samsung telefon',city:'Debrecen',date:'2026-11-04',desc:'Fekete tokban, a belváros környékén.',emoji:'📱'},
+ {id:5,kind:'found',category:'Pénztárca / táska',name:'Fekete pénztárca',city:'Debrecen',date:'2026-11-05',desc:'A főtér közelében találták. A tulajdonos igazolja a részleteket.',emoji:'👝'},
+ {id:6,kind:'lost',category:'Kulcs',name:'Kulcscsomó piros szalaggal',city:'Győr',date:'2026-11-01',desc:'Több kulcs lehet rajta.',emoji:'🗝️'}
+];
+let items = [...seed];
+try { const saved=JSON.parse(localStorage.getItem('talaltam_items')||'[]'); if(Array.isArray(saved)) items=[...saved,...seed]; } catch(e){}
+let filter='all', query='';
+const $=id=>document.getElementById(id);
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function render(){
+ const city=$('cityFilter').value;
+ const visible=items.filter(x=>(filter==='all'||x.kind===filter)&&(!city||x.city.toLowerCase()===city.toLowerCase())&&(!query||(x.name+' '+x.desc+' '+x.city+' '+x.category).toLowerCase().includes(query)));
+ $('listings').innerHTML=visible.length?visible.map(x=>`<article class="item"><div class="item-top ${x.kind}"><span class="tag">${x.kind==='lost'?'ELVESZETT':'MEGTALÁLT'}</span>${x.emoji||'📦'}</div><div class="item-body"><h3>${escapeHtml(x.name)}</h3><p>${escapeHtml(x.desc||x.category)}</p><div class="item-meta"><span>📍 ${escapeHtml(x.city)} · ${escapeHtml(x.date)}</span><button onclick="showDetails(${x.id})">Részletek →</button></div></div></article>`).join(''):'<div class="empty">Nincs ilyen bejelentés. Próbálj másik keresést vagy települést.</div>';
+ $('countAll').textContent=items.length;$('countLost').textContent=items.filter(x=>x.kind==='lost').length;$('countFound').textContent=items.filter(x=>x.kind==='found').length;
 }
-
-function getWeatherIcon(code) {
-  if (code === 0) return "☀️";
-  if (code <= 2) return "🌤️";
-  if (code <= 3) return "☁️";
-  if (code <= 48) return "🌫️";
-  if (code <= 67) return "🌧️";
-  if (code <= 77) return "❄️";
-  if (code <= 82) return "🌦️";
-  if (code <= 86) return "❄️";
-  return "⛈️";
-}
-
-function updateWeatherScene(code, isDay) {
-  const scene = $("weatherScene");
-  let type = "cloudy";
-  let accessory = "";
-
-  if (code === 0) {
-    type = "sunny";
-    accessory = "🕶️";
-  } else if (code <= 3) {
-    type = "cloudy";
-    accessory = "👜";
-  } else if (code === 45 || code === 48) {
-    type = "fog";
-    accessory = "🧥";
-  } else if ([71, 73, 75, 77, 85, 86].includes(code)) {
-    type = "snow";
-    accessory = "🧣";
-  } else if ([95, 96, 99].includes(code)) {
-    type = "storm";
-    accessory = "🌂";
-  } else if (code >= 51 && code <= 67) {
-    type = "rain";
-    accessory = "🌂";
-  } else if (code >= 80 && code <= 82) {
-    type = "rain";
-    accessory = "🌂";
-  }
-
-  scene.className = "weather-scene weather-" + type + (isDay ? "" : " weather-night");
-  $("avatarAccessory").textContent = accessory;
-}
-
-function updateOutfit(temp, rain, wind) {
-  let items, tag, tip, activity;
-
-  if (temp < 5) {
-    items = [
-      ["🧥","Meleg télikabát","Szélálló, bélelt kabát"],
-      ["🧣","Sál és meleg réteg","Pulóver vagy vastag felső"],
-      ["👖","Vastag hosszú nadrág","Hidegben kényelmesebb"],
-      ["🥾","Meleg, zárt cipő","Lehetőleg vízálló"]
-    ];
-    tag = "Hideg idő";
-    tip = "Öltözz melegen, több rétegben. A sapka és kesztyű is jól jöhet.";
-    activity = "❄️ Kiváló alkalom egy forró teázáshoz egy hangulatos kávézóban, múzeumlátogatáshoz vagy egy friss levegős téli sétához a parkban.";
-  } else if (temp < 13) {
-    items = [
-      ["🧶","Melegebb pulóver","Hosszú ujjú alapréteg"],
-      ["🧥","Melegebb kabát","Átmeneti vagy bélelt"],
-      ["👖","Hosszú nadrág","Farmer vagy vastagabb anyag"],
-      ["👟","Zárt cipő","Kényelmes utcai cipő"]
-    ];
-    tag = "Hűvös idő";
-    tip = "Reggel és este hűvösebb lehet, ezért vigyél magaddal kabátot.";
-    activity = "🍂 Tökéletes időjárás egy élénkítő sétához, könnyű túrázáshoz, városnézéshez vagy kerékpározáshoz.";
-  } else if (temp < 21) {
-    items = [
-      ["👕","Hosszú ujjú felső","Vékony pulóver is jó lehet"],
-      ["🧥","Könnyű kabát","Rétegesen könnyű alkalmazkodni"],
-      ["👖","Hosszú nadrág","Kényelmes, szellős anyag"],
-      ["👟","Zárt cipő","Sportcipő vagy vászoncipő"]
-    ];
-    tag = "Enyhe idő";
-    tip = "A réteges öltözködés jó választás.";
-    activity = "🌳 Remek idő szabadtéri programokhoz, parkban való piknikezéshez, fotózáshoz vagy egy kellemes sétához a városban.";
-  } else {
-    items = [
-      ["👕","Könnyű póló","Légáteresztő anyag"],
-      ["🧢","Nap elleni kiegészítő","Sapka vagy napszemüveg"],
-      ["🩳","Könnyű nadrág","Rövid vagy vékony hosszú nadrág"],
-      ["👟","Szellős lábbeli","Kényelmes, könnyű cipő"]
-    ];
-    tag = "Meleg idő";
-    tip = "Válassz világos, könnyű ruhákat, és gondolj a napvédelemre.";
-    activity = "☀️ Ideális időstrandoláshoz, fagyizáshoz, szabadtéri sportoláshoz vagy egy kellemes esti teraszozáshoz!";
-  }
-
-  if (rain >= 50) {
-    items[1] = ["🌂","Esőkabát vagy esernyő","Készülj a csapadékra"];
-    items[3] = ["🥾","Vízálló cipő","Kerüld az átázó lábbelit"];
-    tip += " Eső miatt vízálló felsőréteg ajánlott.";
-    activity = "🌧️ Esős nap! Ideális beltéri programokhoz: könyvtár, mozi, társasjáték barátokkal vagy otthoni olvasás.";
-  }
-
-  if (wind >= 35) {
-    tip += " Erős szél várható, ezért szélálló kabátot válassz.";
-  }
-
-  $("weatherTag").textContent = tag;
-  $("tipText").textContent = tip;
-  $("activityText").textContent = activity;
-
-  $("outfit").innerHTML = items.map(item => `
-    <div class="item">
-      <div class="emoji">${item[0]}</div>
-      <b>${item[1]}</b>
-      <span>${item[2]}</span>
-    </div>
-  `).join("");
-}
-
-function renderForecast(data) {
-  const h = data.hourly;
-  const currentTime = data.current.time;
-  const currentIndex = h.time.findIndex(t => t >= currentTime);
-  const today = currentTime.slice(0, 10);
-
-  const periods = [
-    {name:"🌅 Reggel",start:6,end:9},
-    {name:"☀️ Délelőtt",start:9,end:12},
-    {name:"🌤️ Délután",start:12,end:18},
-    {name:"🌙 Este",start:18,end:23}
-  ];
-
-  $("hourlyForecast").innerHTML = periods.map(period => {
-    const indices = h.time.map((t,i) => {
-      const hour = Number(t.slice(11,13));
-      return t.startsWith(today) && hour >= period.start && hour < period.end ? i : -1;
-    }).filter(i => i >= 0);
-
-    if (!indices.length) {
-      return `<div class="period-card">${period.name}: nincs adat.</div>`;
-    }
-
-    const temps = indices.map(i => h.apparent_temperature[i]);
-    const rain = Math.max(...indices.map(i => h.precipitation_probability[i] || 0));
-    const average = temps.reduce((a,b) => a+b,0) / temps.length;
-
-    return `
-      <div class="period-card">
-        <div class="period-head">
-          <h3>${period.name}</h3>
-          <span class="period-meta">${period.start}:00–${period.end}:00</span>
-        </div>
-        <b>${Math.round(Math.min(...temps))}–${Math.round(Math.max(...temps))}°C</b>
-        · Eső esélye: ${rain}%
-        <div class="period-advice">
-          👕 ${clothingAdvice(average,rain)}
-        </div>
-      </div>
-    `;
-  }).join("");
-
-  $("hourList").innerHTML = h.time
-    .map((time,i) => ({time,i}))
-    .filter(x => x.time.startsWith(today) && x.i >= currentIndex)
-    .slice(0,12)
-    .map(x => `
-      <div class="period-card">
-        <div class="period-head">
-          <h3>${x.time.slice(11,16)}</h3>
-          <b>${Math.round(h.temperature_2m[x.i])}°C</b>
-        </div>
-        Hőérzet: ${Math.round(h.apparent_temperature[x.i])}°C
-        · Eső: ${h.precipitation_probability[x.i] ?? 0}%
-      </div>
-    `).join("");
-}
-
-async function findCity(name) {
-  const url = "https://geocoding-api.open-meteo.com/v1/search?name=" +
-    encodeURIComponent(name) + "&count=5&language=hu&format=json";
-
-  const response = await fetch(url);
-  if (!response.ok) throw new Error("A település keresése nem sikerült.");
-
-  const data = await response.json();
-  if (!data.results || !data.results.length) throw new Error("Nem találom ezt a települést.");
-
-  return data.results[0];
-}
-
-async function getCityNameFromCoords(lat, lon) {
-  try {
-    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&accept-language=hu`;
-    const response = await fetch(url);
-    if (!response.ok) return null;
-
-    const data = await response.json();
-    const address = data.address;
-
-    if (address) {
-      return address.city || address.town || address.village ||
-        address.municipality || address.county;
-    }
-  } catch (e) {
-    console.warn("Helynév keresési hiba:", e);
-  }
-  return null;
-}
-
-async function loadWeather(coords, cityName) {
-  const thisRequest = ++requestNumber;
-
-  $("status").textContent = "Időjárási adatok lekérése...";
-  $("refresh").disabled = true;
-
-  try {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords[0]}&longitude=${coords[1]}&current=temperature_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,is_day&hourly=temperature_2m,apparent_temperature,precipitation_probability,precipitation&forecast_days=2&timezone=auto`;
-
-    const response = await fetch(url);
-    if (!response.ok) throw new Error("Az időjárási szolgáltatás nem elérhető.");
-
-    const data = await response.json();
-    if (thisRequest !== requestNumber) return;
-
-    const current = data.current;
-    const timeIndex = data.hourly.time.indexOf(current.time);
-
-    const rain = timeIndex >= 0
-      ? (data.hourly.precipitation_probability[timeIndex] ?? 0)
-      : 0;
-
-    const temp = current.temperature_2m;
-    const feels = current.apparent_temperature;
-    const wind = current.wind_speed_10m;
-
-    $("tempDisplay").textContent = Math.round(temp) + "°";
-    $("feelsDisplay").textContent = Math.round(feels) + "°";
-    $("rainDisplay").textContent = rain + "%";
-    $("cityDisplay").textContent = cityName;
-    $("weatherIcon").textContent = getWeatherIcon(current.weather_code);
-
-    updateWeatherScene(current.weather_code, current.is_day);
-    updateOutfit(feels, rain, wind);
-    renderForecast(data);
-
-    selectedCoordinates = coords;
-    selectedCity = cityName;
-    $("city").value = cityName;
-
-    $("status").textContent =
-      "Frissítve: " +
-      new Date(current.time).toLocaleString("hu-HU") +
-      " · Szél: " + Math.round(wind) +
-      " km/h · Open-Meteo";
-
-  } catch (error) {
-    if (thisRequest === requestNumber) {
-      $("status").textContent = "Hiba: " + error.message + " Ellenőrizd az internetkapcsolatot.";
-    }
-  } finally {
-    if (thisRequest === requestNumber) {
-      $("refresh").disabled = false;
-    }
-  }
-}
-
-async function changeCity() {
-  const name = $("city").value.trim();
-  if (name.length < 2) return;
-
-  clearTimeout(cityTimer);
-
-  cityTimer = setTimeout(async () => {
-    try {
-      $("status").textContent = "Település keresése...";
-      const result = await findCity(name);
-      const displayName = [result.name, result.admin1, result.country].filter(Boolean).join(", ");
-      await loadWeather([result.latitude, result.longitude], displayName);
-    } catch (error) {
-      $("status").textContent = error.message;
-    }
-  }, 800);
-}
-
-$("city").addEventListener("input", changeCity);
-
-$("refresh").addEventListener("click", () => {
-  loadWeather(selectedCoordinates, selectedCity);
+function setFilter(f,el){filter=f;document.querySelectorAll('[data-filter]').forEach(b=>b.classList.remove('active'));el.classList.add('active');render();}
+function searchItems(){query=$('heroSearch').value.trim().toLowerCase();render();$('listingTitle').scrollIntoView({behavior:'smooth'});}
+function scrollToListings(){$('listingTitle').scrollIntoView({behavior:'smooth'});}
+function showHow(){$('how').scrollIntoView({behavior:'smooth'});}
+function openModal(){$('modalBackdrop').classList.add('open');$('date').value=new Date().toISOString().slice(0,10);$('matches').innerHTML='';}
+function closeModal(){$('modalBackdrop').classList.remove('open');}
+function toast(msg){$('toast').textContent=msg;$('toast').style.display='block';setTimeout(()=>$('toast').style.display='none',2600);}
+function showDetails(id){const x=items.find(i=>i.id===id);if(!x)return;alert(`${x.kind==='lost'?'Elveszett':'Megtalált'}: ${x.name}\nTelepülés: ${x.city}\nDátum: ${x.date}\n\n${x.desc}\n\nEz prototípus: kapcsolatfelvételi funkció még nincs bekötve.`);}
+function similarity(a,b){const words=s=>(s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').match(/[a-z0-9]+/g)||[]);const aa=words(a),bb=words(b);return aa.filter(w=>bb.includes(w)).length/Math.max(1,Math.min(aa.length,bb.length));}
+$('itemName').addEventListener('input',()=>{
+ const name=$('itemName').value.trim(),kind=$('kind').value,city=$('city').value.trim();if(name.length<4){$('matches').innerHTML='';return;}
+ const opposite=kind==='lost'?'found':'lost';const found=items.filter(x=>x.kind===opposite&&(similarity(name,x.name)>=.25||name.toLowerCase().includes(x.category.toLowerCase()))).slice(0,2);
+ $('matches').innerHTML=found.length?'<div class="match"><b>Lehetséges egyezés!</b><br>'+found.map(x=>`${escapeHtml(x.name)} – ${escapeHtml(x.city)} (${x.kind==='found'?'megtalált':'elveszett'})`).join('<br>')+'</div>':'';
 });
-
-function initGeoLocation() {
-  if (!navigator.geolocation) {
-    loadWeather(selectedCoordinates, selectedCity);
-    return;
-  }
-
-  $("status").textContent = "GPS helymeghatározás folyamatban...";
-
-  navigator.geolocation.getCurrentPosition(async position => {
-    const lat = position.coords.latitude;
-    const lon = position.coords.longitude;
-    const name = await getCityNameFromCoords(lat, lon) || "Saját helyzetem";
-
-    loadWeather([lat, lon], name);
-  }, () => {
-    $("status").textContent = "GPS letiltva vagy nem elérhető. Alapértelmezett hely (Budapest) betöltve.";
-    loadWeather(selectedCoordinates, selectedCity);
-  }, { timeout: 10000 });
-}
-
-$("myLocation").AddEventListener("click", () => {
-  initGeoLocation();
+$('reportForm').addEventListener('submit',e=>{
+ e.preventDefault();const name=$('itemName').value.trim(),kind=$('kind').value,category=$('category').value,city=$('city').value.trim(),date=$('date').value,desc=$('description').value.trim();
+ const icons={'Elektronika':'📱','Pénztárca / táska':'👛','Kulcs':'🔑','Irat':'🪪','Ékszer':'💍','Ruházat':'🧥','Állat':'🐾','Egyéb':'📦'};
+ const item={id:Date.now(),kind,category,name,city,date,desc,emoji:icons[category]||'📦'};items.unshift(item);
+ try{localStorage.setItem('talaltam_items',JSON.stringify(items.filter(x=>!seed.some(s=>s.id===x.id))));}catch(err){}
+ closeModal();$('reportForm').reset();query='';$('heroSearch').value='';$('cityFilter').value='';filter='all';document.querySelectorAll('[data-filter]').forEach(b=>b.classList.toggle('active',b.dataset.filter==='all'));render();toast('A bejelentés elmentve ezen az eszközön.');scrollToListings();
 });
-
-initGeoLocation();
-
-refreshTimer = setInterval(() => {
-  loadWeather(selectedCoordinates, selectedCity);
-}, 15 * 60 * 1000);
+render();
 </script>
 </body>
 </html>
