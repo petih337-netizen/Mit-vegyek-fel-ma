@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="hu">
 <head>
@@ -287,8 +286,8 @@ footer{text-align:center;color:var(--muted);padding:35px 15px;font-size:13px}
 
 <script>
 // 1. SUPABASE ADATOK
-const SUPABASE_URL =  https://dsmnxydripaymqgydfjm.supabase.co/rest/v1/;
-const SUPABASE_KEY =  sb_publishable_ZATBsrxmIDGPlmR_81nnQg_9U8hJWv6;
+const SUPABASE_URL = "https://dsmnxydripaymqgydfjm.supabase.co/rest/v1/";
+const SUPABASE_KEY = "sb_publishable_ZATBsrxmIDGPlmR_81nnQg_9U8hJWv6";
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentUser = null;
@@ -582,7 +581,6 @@ async function start(){
   const {data}=await db.auth.getSession();
   await updateAuth(data.session);
   await loadListings();
-  // Az olvasatlan üzenetek jelzése időszakosan frissül.
   refreshTimer=setInterval(async()=>{
     if(currentUser){await loadConversations();await loadUnreadCount()}
   },20000);
