@@ -1,212 +1,593 @@
+
 <!DOCTYPE html>
 <html lang="hu">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#123b2d">
+<meta name="theme-color" content="#10251d">
 <title>Találtam! – Elveszett és megtalált tárgyak</title>
+<meta name="description" content="Elveszett vagy talált tárgyak keresése és bejelentése egy helyen.">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
-  --site-primary: #174b38;
-  --site-on-primary: #ffffff;
-  --site-secondary: #d9eee2;
-  --site-on-secondary: #173b2d;
-  --site-background: #f4f7f3;
-  --site-on-background: #18251e;
-  --site-font-body: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --site-font-heading: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --site-heading-scale: 1;
-  --site-spacing-scale: 1;
-  --site-radius-scale: 1;
-  --site-decoration-opacity: 1;
-  --surface: light-dark(#ffffff, #17231d);
-  --surface-soft: light-dark(#edf4ee, #202f27);
-  --ink: light-dark(#18251e, #edf5ef);
-  --muted: light-dark(#65756b, #aab9ae);
-  --line: light-dark(#dce6dd, #34463a);
-  --accent: #d9a441;
-  --danger: #b94b43;
-  color-scheme: light dark;
+  --bg:#0d1914;
+  --panel:#14271e;
+  --panel2:#1a3327;
+  --green:#b5d5a3;
+  --gold:#e7c879;
+  --text:#f3f4ed;
+  --muted:#aab8ad;
+  --border:rgba(255,255,255,.1);
+  --danger:#f08d82;
 }
-* { box-sizing: border-box; }
-body { margin: 0; font-family: var(--site-font-body); background:radial-gradient(ellipse at 8% 35%,#dceee3 0,transparent 32%),radial-gradient(ellipse at 92% 72%,#f5ead6 0,transparent 27%),var(--site-background); color: var(--site-on-background); }
-#app { min-height: 100vh; width: 100%; border-radius: 0; background:transparent; color: var(--site-on-background); overflow: hidden; }
-button, input, select, textarea { font: inherit; }
-button { cursor: pointer; }
-.topbar { background:linear-gradient(110deg,#102f26,#174b38 65%,#23634a);color:var(--site-on-primary);padding:15px max(20px, calc((100% - 1120px)/2));display:flex;align-items:center;justify-content:space-between;gap:16px;box-shadow:0 8px 28px #10271920;position:relative;z-index:3; }
-.brand { display:flex; align-items:center; gap:10px; font-weight:850; letter-spacing:-.7px; font-size:22px; }
-.brand-mark { width:38px;height:38px;border-radius:13px;background:linear-gradient(145deg,#f5d58d,#d9a441);color:#173b2d;display:grid;place-items:center;font-size:22px;box-shadow:0 5px 16px #071c1440; }
-.nav { display:flex; gap:8px; align-items:center; }
-.nav button { border:1px solid #ffffff35;color:white;background:#ffffff0b;border-radius:999px;padding:10px 15px;font-size:13px;font-weight:700;transition:background .2s,transform .2s; }
-.nav button:hover { background:#ffffff20;transform:translateY(-1px); }
-.nav button.primary-nav { background:#e7f2e9;color:#174b38;border-color:#e7f2e9; }
-.hero { background:var(--site-primary); color:white; padding:58px 20px 76px; position:relative; }
-.hero { background:radial-gradient(ellipse at 82% 18%,#3c9b75 0,transparent 29%),radial-gradient(ellipse at 12% 95%,#b68b42 0,transparent 24%),linear-gradient(125deg,#102e27 0%,#14523d 48%,#173d36 100%); overflow:hidden; }
-.hero:before { content:"⌕";position:absolute;right:8%;top:2%;font-size:clamp(220px,30vw,390px);line-height:1;font-weight:300;color:#ffffff0d;transform:rotate(-18deg);text-shadow:0 0 1px #ffffff18;pointer-events:none; }
-.hero:after { content:"🔑     👛     🎧";position:absolute;right:10%;bottom:22px;padding:15px 22px;border:1px solid #ffffff28;border-radius:18px;background:#ffffff0d;backdrop-filter:blur(8px);font-size:clamp(20px,3vw,30px);letter-spacing:7px;box-shadow:0 12px 35px #061d1530;pointer-events:none; }
-.hero-inner { max-width:1120px;margin:auto;position:relative;z-index:1; }
-.eyebrow { color:#c4e2ce;text-transform:uppercase;letter-spacing:2px;font-size:11px;font-weight:800; }
-h1 { font-family:var(--site-font-heading);font-size:calc(48px * var(--site-heading-scale));line-height:1.04;letter-spacing:-2.8px;max-width:700px;margin:14px 0 14px; }
-.hero p { color:#d9e9de;max-width:600px;line-height:1.65;font-size:16px;margin:0 0 26px; }
-.searchbar { display:flex;gap:9px;background:white;padding:8px;border-radius:16px;max-width:760px;box-shadow:0 16px 42px #09271935; }
-.hero-inner:before { content:"ELVESZETT  ·  MEGTALÁLT";position:absolute;right:3%;top:22px;color:#d9eee2a8;font-size:10px;font-weight:850;letter-spacing:2px; }
-.hero-inner:after { content:"";position:absolute;right:15%;top:85px;width:145px;height:145px;border:1px solid #ffffff22;border-radius:50%;box-shadow:0 0 0 18px #ffffff08,0 0 0 38px #ffffff06;pointer-events:none; }
-.searchbar input { flex:1;min-width:0;border:0;outline:0;color:#1b2b21;padding:10px 12px;background:white; }
-.btn { border:0;border-radius:12px;padding:12px 17px;font-weight:800;transition:.15s; }
-.btn:hover { transform:translateY(-1px); }
-.btn-gold { background:#e4b34e;color:#2d281a; }
-.btn-green { background:var(--site-primary);color:white; }
-.btn-light { background:#e7f1e9;color:#174b38; }
-main { max-width:1120px;margin:-32px auto 0;padding:0 20px 70px;position:relative;z-index:2; }
-.stats { display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px; }
-.stat { background:linear-gradient(145deg,#ffffff,#f4f8f4);border:1px solid #dce8de;border-radius:20px;padding:20px 21px;box-shadow:0 10px 28px #1027190d;position:relative;overflow:hidden; }
-.stat:after { content:"";position:absolute;width:76px;height:76px;right:-25px;bottom:-35px;border:1px solid #4b8d681c;border-radius:50%;box-shadow:0 0 0 12px #4b8d6808; }
-.stat strong { display:block;font-size:24px;letter-spacing:-1px;color:var(--site-primary); }
-.stat span { color:var(--muted);font-size:12px;font-weight:650; }
-.section-head { display:flex;align-items:end;justify-content:space-between;gap:16px;margin:34px 0 16px;padding-bottom:13px;border-bottom:1px solid #dce8de; }
-.section-head h2 { margin:0;font-size:23px;letter-spacing:-.8px; }
-.section-head p { margin:5px 0 0;color:var(--muted);font-size:13px; }
-.filters { display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 18px; }
-.chip { border:1px solid #dce6dd;background:#ffffffd9;color:var(--ink);padding:9px 15px;border-radius:999px;font-size:12px;font-weight:750;box-shadow:0 3px 10px #10271908;transition:.18s; }
-.chip:hover { border-color:#8eb49a;transform:translateY(-1px); }
-.chip.active { background:linear-gradient(120deg,#174b38,#28704f);border-color:#174b38;color:white;box-shadow:0 5px 14px #174b3830; }
-.listings { display:grid;grid-template-columns:repeat(3,1fr);gap:14px; }
-.item { background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 8px 24px #1027190b;transition:transform .2s,box-shadow .2s; }
-.item:hover { transform:translateY(-4px);box-shadow:0 16px 34px #10271918; }
-.item-top { height:126px;background:radial-gradient(circle at 75% 20%,#ffffffa8,transparent 34%),linear-gradient(135deg,#e7f3e9,#c7dfce);display:grid;place-items:center;font-size:49px;position:relative; }
-.item-top.lost { background:radial-gradient(circle at 75% 20%,#ffffffa8,transparent 34%),linear-gradient(135deg,#fbf0df,#efd5b3); }
-.tag { position:absolute;left:12px;top:12px;background:white;color:#174b38;border-radius:999px;padding:5px 9px;font-size:10px;font-weight:850; }
-.item-body { padding:15px; }
-.item-body h3 { margin:0 0 7px;font-size:16px; }
-.item-body p { margin:0;color:var(--muted);font-size:12px;line-height:1.5; }
-.item-meta { display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:11px;color:var(--muted); }
-.item-meta button { border:0;background:transparent;color:var(--site-primary);font-weight:850;font-size:11px; }
-.empty { grid-column:1/-1;padding:32px;text-align:center;border:1px dashed var(--line);border-radius:16px;color:var(--muted); }
-.how { display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:38px; }
-.how-card { background:linear-gradient(145deg,#ffffffed,#edf5ef);border:1px solid #dce8de;border-radius:19px;padding:21px;box-shadow:0 8px 24px #1027190b;transition:transform .2s,box-shadow .2s; }
-.how-card:hover { transform:translateY(-3px);box-shadow:0 14px 30px #10271913; }
-.how-card b { display:block;margin:10px 0 6px; }
-.how-card p { margin:0;color:var(--muted);font-size:12px;line-height:1.55; }
-.icon { width:40px;height:40px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(145deg,#dff0e3,#c5e0ce);color:var(--site-on-secondary);font-size:19px;box-shadow:inset 0 1px #ffffffb8; }
-footer { border-top:1px solid #dce8de;background:linear-gradient(110deg,#102f26,#174b38);padding:27px 20px;text-align:center;color:#d6e8dc;font-size:12px; }
-.modal-backdrop { position:fixed;inset:0;background:#07150dcc;display:none;align-items:center;justify-content:center;padding:16px;z-index:10; }
-.modal-backdrop.open { display:flex; }
-.modal { width:min(540px,100%);max-height:90vh;overflow:auto;background:var(--surface);color:var(--ink);border-radius:20px;padding:23px;box-shadow:0 24px 80px #0005; }
-.modal-head { display:flex;justify-content:space-between;align-items:center;margin-bottom:16px; }
-.modal-head h2 { margin:0;font-size:22px; }
-.close { border:0;background:var(--surface-soft);color:var(--ink);width:34px;height:34px;border-radius:50%;font-size:19px; }
-.field { margin:12px 0; }
-.field label { display:block;font-size:12px;font-weight:800;margin-bottom:6px; }
-.field input,.field select,.field textarea { width:100%;padding:12px;border:1px solid var(--line);border-radius:11px;background:var(--surface);color:var(--ink);outline-color:#4b8d68; }
-.field textarea { min-height:76px;resize:vertical; }
-.form-grid { display:grid;grid-template-columns:1fr 1fr;gap:10px; }
-.notice { background:var(--surface-soft);border-radius:12px;padding:11px 13px;color:var(--muted);font-size:11px;line-height:1.5;margin:12px 0; }
-.match { background:#e8f3e9;color:#1a4c35;border-radius:12px;padding:12px;margin-top:10px;font-size:12px; }
-.toast { position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#173f30;color:white;padding:12px 17px;border-radius:999px;box-shadow:0 8px 30px #0003;display:none;z-index:20;font-size:13px; }
-@media(max-width:760px){h1{font-size:39px;letter-spacing:-2px}.hero{padding:42px 20px 65px}.hero:before{right:-85px;top:80px;font-size:220px}.hero:after{right:18px;bottom:12px;font-size:17px;padding:10px 13px;letter-spacing:3px}.hero-inner:before,.hero-inner:after{display:none}.topbar{padding:12px 16px}.nav button:not(.primary-nav){display:none}.listings{grid-template-columns:repeat(2,1fr)}.stats{gap:8px}.stat{padding:15px 13px}.stat strong{font-size:20px}.how{grid-template-columns:1fr}.section-head{align-items:start;flex-direction:column}}
-@media(max-width:480px){.listings{grid-template-columns:1fr}.searchbar{flex-wrap:wrap}.searchbar input{flex-basis:100%}.searchbar button{width:100%}.stats{grid-template-columns:1fr 1fr}.stat:last-child{display:none}.form-grid{grid-template-columns:1fr}h1{font-size:35px}}
+*{box-sizing:border-box}
+body{
+  margin:0;background:
+  radial-gradient(ellipse at 15% 0%,rgba(76,125,84,.22),transparent 40%),
+  radial-gradient(ellipse at 90% 35%,rgba(190,155,75,.10),transparent 35%),
+  var(--bg);
+  color:var(--text);font-family:Arial,sans-serif;
+  min-height:100vh;
+}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+header{
+  position:sticky;top:0;z-index:10;
+  background:rgba(13,25,20,.94);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+}
+.nav{
+  max-width:1150px;margin:auto;padding:15px 20px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+}
+.logo{font-size:25px;font-weight:800;color:var(--gold)}
+.logo span{color:var(--green)}
+.nav-actions{display:flex;gap:8px;flex-wrap:wrap}
+.container{max-width:1100px;margin:auto;padding:25px 20px}
+.hero{
+  padding:55px 25px;text-align:center;border:1px solid var(--border);
+  border-radius:24px;background:linear-gradient(135deg,#193528,#14251e 70%);
+  box-shadow:0 15px 50px rgba(0,0,0,.2);
+}
+.hero h1{font-size:clamp(30px,5vw,48px);margin:0 0 14px}
+.hero h1 span{color:var(--gold)}
+.hero p{color:var(--muted);line-height:1.6;max-width:650px;margin:0 auto 24px}
+.btn{
+  border:0;border-radius:12px;padding:12px 17px;font-weight:700;
+  background:var(--green);color:#14251b;
+}
+.btn:hover{filter:brightness(1.08)}
+.btn.gold{background:var(--gold)}
+.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--border)}
+.btn.danger{background:#633a35;color:white}
+.btn.small{padding:8px 11px;font-size:13px}
+.section-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:32px 0 16px}
+.section-title h2{margin:0;font-size:23px}
+.muted{color:var(--muted)}
+.filters,.form-card,.account-card,.message-card{
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:17px;padding:18px;
+}
+.filters{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px}
+input,textarea,select{
+  width:100%;padding:12px;border-radius:10px;
+  border:1px solid var(--border);background:#0e1c15;color:var(--text);
+  outline:none;
+}
+input:focus,textarea:focus,select:focus{border-color:var(--green)}
+textarea{min-height:110px;resize:vertical}
+label{display:block;font-size:13px;color:var(--muted);margin:12px 0 6px}
+.listings{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.listing{
+  overflow:hidden;background:var(--panel);border:1px solid var(--border);
+  border-radius:17px;display:flex;flex-direction:column;
+}
+.listing img{width:100%;height:190px;object-fit:cover;background:#20372a}
+.listing-content{padding:16px;display:flex;flex-direction:column;gap:9px;flex:1}
+.tag{
+  display:inline-block;padding:5px 9px;border-radius:20px;
+  background:#294533;color:var(--green);font-size:11px;font-weight:bold;
+}
+.tag.lost{background:#4a3930;color:#f0c38a}
+.listing h3{margin:0;font-size:18px;overflow-wrap:anywhere}
+.listing p{margin:0;color:var(--muted);line-height:1.5;font-size:14px;overflow-wrap:anywhere}
+.listing-footer{margin-top:auto;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.ad-slot{
+  margin:25px 0;padding:18px;text-align:center;border:1px dashed #53665a;
+  border-radius:12px;color:#718176;font-size:12px;min-height:55px;
+}
+.hidden{display:none!important}
+.modal{
+  position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:30;
+  display:flex;align-items:center;justify-content:center;padding:15px;
+}
+.modal-box{
+  width:100%;max-width:480px;max-height:90vh;overflow:auto;
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:20px;padding:23px;
+}
+.modal-head{display:flex;justify-content:space-between;align-items:center}
+.modal-head h2{margin:0}
+.close{background:none;border:0;color:var(--text);font-size:25px}
+.notice{
+  margin:12px 0;padding:12px;border-radius:10px;
+  background:#263c2c;color:var(--green);font-size:14px;
+}
+.notice.error{background:#472b29;color:#ffb5a9}
+.account-bar{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  flex-wrap:wrap;padding:15px;background:var(--panel);
+  border:1px solid var(--border);border-radius:14px;margin-top:20px;
+}
+.unread{background:#d8a84e;color:#14251b;border-radius:20px;padding:4px 8px;font-size:12px;font-weight:bold}
+.conversation{
+  border:1px solid var(--border);padding:13px;border-radius:12px;
+  margin:9px 0;background:#102219;text-align:left;width:100%;color:var(--text);
+}
+.conversation.active{border-color:var(--gold)}
+.chat-box{background:#0e1c15;border-radius:12px;padding:12px;margin-top:12px;max-height:350px;overflow:auto}
+.msg{padding:10px 12px;margin:8px 0;border-radius:12px;max-width:85%;background:#243b2c;overflow-wrap:anywhere}
+.msg.mine{margin-left:auto;background:#3d573b}
+.msg small{display:block;color:#bdc9bd;font-size:10px;margin-top:5px}
+.row{display:flex;gap:9px;align-items:center}
+.row>*{flex:1}
+footer{text-align:center;color:var(--muted);padding:35px 15px;font-size:13px}
+@media(max-width:800px){.listings{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){
+  .listings{grid-template-columns:1fr}
+  .filters{grid-template-columns:1fr}
+  .nav{align-items:flex-start;flex-direction:column}
+  .hero{padding:38px 18px}
+}
 </style>
 </head>
 <body>
-<div id="app">
-<header class="topbar">
-  <div class="brand"><span class="brand-mark">⌕</span> Találtam<span style="color:#e4b34e">!</span></div>
-  <nav class="nav"><button onclick="scrollToListings()">Keresés</button><button onclick="showHow()">Hogyan működik?</button><button class="primary-nav" onclick="openModal()">＋ Bejelentés</button></nav>
+
+<header>
+  <div class="nav">
+    <div class="logo">Találtam<span>!</span></div>
+    <div class="nav-actions">
+      <button class="btn ghost small" onclick="showListings()">Keresés</button>
+      <button class="btn small" onclick="openAuth()">Belépés / Regisztráció</button>
+      <button class="btn gold small hidden" id="inboxNav" onclick="openInbox()">
+        Üzeneteim <span id="unreadBadge"></span>
+      </button>
+    </div>
+  </div>
 </header>
-<section class="hero">
-  <div class="hero-inner">
-    <div class="eyebrow">Együtt könnyebb megtalálni</div>
-    <h1>Elveszett valami?<br>Segítünk hazatalálni.</h1>
-    <p>Országos közösségi kereső elveszett és megtalált tárgyakhoz. Tegyél közzé bejelentést, vagy keress rá arra, amit valaki megtalált.</p>
-    <div class="searchbar"><input id="heroSearch" placeholder="Mit keresel? Pl. fekete pénztárca, kulcs..." onkeydown="if(event.key==='Enter')searchItems()"><button class="btn btn-gold" onclick="searchItems()">Keresés →</button></div>
-  </div>
-</section>
-<main>
-  <div class="stats">
-    <div class="stat"><strong id="countAll">6</strong><span>Bejelentés a mintában</span></div>
-    <div class="stat"><strong id="countLost">3</strong><span>Elveszett tárgy</span></div>
-    <div class="stat"><strong id="countFound">3</strong><span>Megtalált tárgy</span></div>
-  </div>
-  <div class="section-head" id="listingTitle"><div><h2>Friss bejelentések</h2><p>Mintabejegyzések – próbáld ki a keresőt és a szűrőket.</p></div><button class="btn btn-green" onclick="openModal()">＋ Új bejelentés</button></div>
-  <div class="filters">
-    <button class="chip active" data-filter="all" onclick="setFilter('all',this)">Mindegyik</button>
-    <button class="chip" data-filter="lost" onclick="setFilter('lost',this)">Elveszett</button>
-    <button class="chip" data-filter="found" onclick="setFilter('found',this)">Megtalált</button>
-    <select id="cityFilter" class="chip" onchange="render()"><option value="">Minden település</option><option>Budapest</option><option>Debrecen</option><option>Szeged</option><option>Győr</option><option>Pécs</option></select>
-  </div>
-  <div class="listings" id="listings"></div>
-  <section class="how" id="how">
-    <div class="how-card"><div class="icon">＋</div><b>1. Jelentsd be</b><p>Add meg, mit veszítettél el vagy mit találtál, hol és mikor történt. Személyes adatot ne tegyél közzé.</p></div>
-    <div class="how-card"><div class="icon">⌕</div><b>2. Keress egyezést</b><p>A kereső segít megtalálni a hasonló tárgyakat. A rendszer a kategóriát, leírást és települést is figyelembe veszi.</p></div>
-    <div class="how-card"><div class="icon">✓</div><b>3. Egyeztess biztonságosan</b><p>Ha találtál egy lehetséges egyezést, ellenőrizd a tulajdonjogot, és csak biztonságos módon szervezz átadást.</p></div>
+
+<main class="container">
+  <section class="hero" id="home">
+    <h1>Találtál valamit? <span>Vagy elveszett?</span></h1>
+    <p>Egy hely, ahol az elveszett tárgyak és megtalálóik egymásra találhatnak.
+       Keress, jelents be egy tárgyat, és segíts valakinek hazatalálni.</p>
+    <div class="row" style="max-width:430px;margin:auto">
+      <button class="btn gold" onclick="showListings()">Tárgy keresése</button>
+      <button class="btn" onclick="goAdd()">Hirdetés feltöltése</button>
+    </div>
   </section>
-  <div class="notice" style="margin-top:28px"><b>Fontos:</b> Ez egy első prototípus. A bejelentések jelenleg csak ezen a böngészőn és eszközön tárolódnak, nem jelennek meg más látogatóknál. Ne tölts fel okmányfotót, pontos lakcímet, telefonszámot vagy más érzékeny adatot. A nyilvános, országos működéshez közös adatbázist, moderálást és biztonságos kapcsolatfelvételt építünk.</div>
+
+  <div class="account-bar hidden" id="accountBar">
+    <div>
+      <strong id="userEmail"></strong>
+      <div class="muted" style="font-size:12px;margin-top:4px">Bejelentkezve</div>
+    </div>
+    <button class="btn ghost small" onclick="logout()">Kilépés</button>
+  </div>
+
+  <div class="ad-slot">Hirdetési hely – később Google AdSense</div>
+
+  <section id="listSection">
+    <div class="section-title">
+      <h2>Elveszett és megtalált tárgyak</h2>
+      <span class="muted" id="resultCount"></span>
+    </div>
+    <div class="filters">
+      <input id="searchInput" placeholder="Mit keresel? Például kulcs, telefon..." oninput="renderListings()">
+      <select id="typeFilter" onchange="renderListings()">
+        <option value="">Minden hirdetés</option>
+        <option value="lost">Elveszett tárgyak</option>
+        <option value="found">Talált tárgyak</option>
+      </select>
+      <select id="categoryFilter" onchange="renderListings()">
+        <option value="">Minden kategória</option>
+        <option>Okmány, irat</option>
+        <option>Kulcs</option>
+        <option>Telefon, elektronika</option>
+        <option>Táska, pénztárca</option>
+        <option>Ékszer</option>
+        <option>Ruházat</option>
+        <option>Állat</option>
+        <option>Jármű, rendszám</option>
+        <option>Egyéb</option>
+      </select>
+    </div>
+    <div id="loading" class="notice">Hirdetések betöltése...</div>
+    <div class="listings" id="listingGrid"></div>
+    <div id="emptyState" class="notice hidden">Még nincs hirdetés. Legyél te az első, aki feltölt egyet!</div>
+  </section>
+
+  <section id="addSection" class="hidden">
+    <div class="section-title"><h2>Új hirdetés feltöltése</h2></div>
+    <div class="form-card">
+      <p class="muted">A hirdetés feltöltéséhez bejelentkezés szükséges.</p>
+      <form id="listingForm">
+        <label>Hirdetés típusa</label>
+        <select id="itemType" required>
+          <option value="lost">Elveszett tárgyat keresek</option>
+          <option value="found">Talált tárgyat jelentek be</option>
+        </select>
+        <label>Kategória</label>
+        <select id="itemCategory" required>
+          <option>Okmány, irat</option><option>Kulcs</option>
+          <option>Telefon, elektronika</option><option>Táska, pénztárca</option>
+          <option>Ékszer</option><option>Ruházat</option>
+          <option>Állat</option><option>Jármű, rendszám</option><option>Egyéb</option>
+        </select>
+        <label>Hirdetés címe</label>
+        <input id="itemTitle" maxlength="120" required placeholder="Például: Fekete kulcscsomót találtam">
+        <label>Leírás</label>
+        <textarea id="itemDescription" maxlength="3000" required placeholder="Írd le, mit vesztettél el vagy mit találtál. Személyes adatot ne adj meg!"></textarea>
+        <label>Helyszín</label>
+        <input id="itemLocation" required maxlength="150" placeholder="Például: Debrecen, belváros">
+        <label>Fénykép (nem kötelező, maximum 5 MB)</label>
+        <input id="itemImage" type="file" accept="image/jpeg,image/png,image/webp">
+        <p class="muted" style="font-size:12px">Okmányt, rendszámot vagy személyes adatot tartalmazó képen takard ki az érzékeny adatokat!</p>
+        <button class="btn gold" id="submitListing" type="submit">Hirdetés közzététele</button>
+        <div id="listingNotice"></div>
+      </form>
+    </div>
+  </section>
+
+  <section id="inboxSection" class="hidden">
+    <div class="section-title"><h2>Üzeneteim</h2><button class="btn ghost small" onclick="showListings()">Vissza</button></div>
+    <div class="message-card">
+      <div id="conversationList"></div>
+      <div id="chatArea" class="hidden">
+        <h3 id="chatTitle"></h3>
+        <div class="chat-box" id="chatMessages"></div>
+        <form id="messageForm" style="margin-top:12px">
+          <label>Üzenet</label>
+          <textarea id="messageText" maxlength="3000" required placeholder="Írd ide az üzeneted..."></textarea>
+          <button class="btn gold" type="submit">Üzenet küldése</button>
+          <div id="messageNotice"></div>
+        </form>
+      </div>
+    </div>
+  </section>
 </main>
-<footer>Találtam! · Közösségi segítség elveszett és megtalált tárgyakhoz · Tesztverzió</footer>
-</div>
-<div class="modal-backdrop" id="modalBackdrop" onclick="if(event.target===this)closeModal()">
-  <div class="modal">
-    <div class="modal-head"><h2>Új bejelentés</h2><button class="close" onclick="closeModal()">×</button></div>
-    <form id="reportForm">
-      <div class="form-grid">
-        <div class="field"><label for="kind">Bejelentés típusa</label><select id="kind"><option value="lost">Elveszett tárgy</option><option value="found">Megtalált tárgy</option></select></div>
-        <div class="field"><label for="category">Kategória</label><select id="category"><option>Elektronika</option><option>Pénztárca / táska</option><option>Kulcs</option><option>Irat</option><option>Ékszer</option><option>Ruházat</option><option>Állat</option><option>Egyéb</option></select></div>
-      </div>
-      <div class="field"><label for="itemName">Mi veszett el / mit találtál?</label><input id="itemName" required maxlength="70" placeholder="Pl. fekete bőr pénztárca"></div>
-      <div class="form-grid">
-        <div class="field"><label for="city">Település</label><input id="city" required maxlength="50" placeholder="Pl. Debrecen"></div>
-        <div class="field"><label for="date">Dátum</label><input id="date" type="date" required></div>
-      </div>
-      <div class="field"><label for="description">Részletek (opcionális)</label><textarea id="description" maxlength="240" placeholder="Szín, ismertetőjegy, környék – érzékeny adatot ne írj ide."></textarea></div>
-      <div class="notice">Biztonság: ne add meg a teljes okmányszámot, bankkártyaadatot, pontos lakcímet vagy telefonszámot. A bejegyzés most csak a saját böngésződben lesz látható.</div>
-      <div id="matches"></div>
-      <button class="btn btn-green" style="width:100%;margin-top:12px" type="submit">Bejelentés mentése</button>
+
+<div class="ad-slot">Hirdetési hely – későbbi bevételszerzés</div>
+
+<footer>
+  Találtam! – Elveszett és megtalált tárgyak<br>
+  <span>Segítsünk egymásnak megtalálni, ami elveszett.</span>
+</footer>
+
+<div class="modal hidden" id="authModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2 id="authTitle">Belépés</h2>
+      <button class="close" onclick="closeAuth()">×</button>
+    </div>
+    <div class="row" style="margin-top:16px">
+      <button class="btn small" onclick="setAuthMode('login')">Belépés</button>
+      <button class="btn ghost small" onclick="setAuthMode('signup')">Regisztráció</button>
+    </div>
+    <form id="authForm">
+      <label>E-mail-cím</label>
+      <input id="authEmail" type="email" required autocomplete="email">
+      <label>Jelszó</label>
+      <input id="authPassword" type="password" required minlength="6" autocomplete="current-password">
+      <button class="btn gold" style="width:100%;margin-top:16px" id="authSubmit">Belépés</button>
+      <div id="authNotice"></div>
     </form>
   </div>
 </div>
-<div class="toast" id="toast"></div>
+
 <script>
-const seed = [
- {id:1,kind:'found',category:'Elektronika',name:'Fekete vezeték nélküli fülhallgató',city:'Debrecen',date:'2026-11-04',desc:'Egy park közelében találták.',emoji:'🎧'},
- {id:2,kind:'lost',category:'Pénztárca / táska',name:'Barna bőr pénztárca',city:'Budapest',date:'2026-11-03',desc:'Kisebb, barna színű pénztárca.',emoji:'👛'},
- {id:3,kind:'found',category:'Kulcs',name:'Egy darab kulcs kék kulcstartóval',city:'Szeged',date:'2026-11-02',desc:'Buszmegálló közelében találták.',emoji:'🔑'},
- {id:4,kind:'lost',category:'Elektronika',name:'Fekete Samsung telefon',city:'Debrecen',date:'2026-11-04',desc:'Fekete tokban, a belváros környékén.',emoji:'📱'},
- {id:5,kind:'found',category:'Pénztárca / táska',name:'Fekete pénztárca',city:'Debrecen',date:'2026-11-05',desc:'A főtér közelében találták. A tulajdonos igazolja a részleteket.',emoji:'👝'},
- {id:6,kind:'lost',category:'Kulcs',name:'Kulcscsomó piros szalaggal',city:'Győr',date:'2026-11-01',desc:'Több kulcs lehet rajta.',emoji:'🗝️'}
-];
-let items = [...seed];
-try { const saved=JSON.parse(localStorage.getItem('talaltam_items')||'[]'); if(Array.isArray(saved)) items=[...saved,...seed]; } catch(e){}
-let filter='all', query='';
-const $=id=>document.getElementById(id);
-function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function render(){
- const city=$('cityFilter').value;
- const visible=items.filter(x=>(filter==='all'||x.kind===filter)&&(!city||x.city.toLowerCase()===city.toLowerCase())&&(!query||(x.name+' '+x.desc+' '+x.city+' '+x.category).toLowerCase().includes(query)));
- $('listings').innerHTML=visible.length?visible.map(x=>`<article class="item"><div class="item-top ${x.kind}"><span class="tag">${x.kind==='lost'?'ELVESZETT':'MEGTALÁLT'}</span>${x.emoji||'📦'}</div><div class="item-body"><h3>${escapeHtml(x.name)}</h3><p>${escapeHtml(x.desc||x.category)}</p><div class="item-meta"><span>📍 ${escapeHtml(x.city)} · ${escapeHtml(x.date)}</span><button onclick="showDetails(${x.id})">Részletek →</button></div></div></article>`).join(''):'<div class="empty">Nincs ilyen bejelentés. Próbálj másik keresést vagy települést.</div>';
- $('countAll').textContent=items.length;$('countLost').textContent=items.filter(x=>x.kind==='lost').length;$('countFound').textContent=items.filter(x=>x.kind==='found').length;
+// 1. SUPABASE ADATOK
+const SUPABASE_URL =  https://dsmnxydripaymqgydfjm.supabase.co/rest/v1/;
+const SUPABASE_KEY =  sb_publishable_ZATBsrxmIDGPlmR_81nnQg_9U8hJWv6;
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentUser = null;
+let listings = [];
+let activeConversation = null;
+let conversations = [];
+let authMode = "login";
+let refreshTimer = null;
+
+const $ = id => document.getElementById(id);
+
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  })[c]);
 }
-function setFilter(f,el){filter=f;document.querySelectorAll('[data-filter]').forEach(b=>b.classList.remove('active'));el.classList.add('active');render();}
-function searchItems(){query=$('heroSearch').value.trim().toLowerCase();render();$('listingTitle').scrollIntoView({behavior:'smooth'});}
-function scrollToListings(){$('listingTitle').scrollIntoView({behavior:'smooth'});}
-function showHow(){$('how').scrollIntoView({behavior:'smooth'});}
-function openModal(){$('modalBackdrop').classList.add('open');$('date').value=new Date().toISOString().slice(0,10);$('matches').innerHTML='';}
-function closeModal(){$('modalBackdrop').classList.remove('open');}
-function toast(msg){$('toast').textContent=msg;$('toast').style.display='block';setTimeout(()=>$('toast').style.display='none',2600);}
-function showDetails(id){const x=items.find(i=>i.id===id);if(!x)return;alert(`${x.kind==='lost'?'Elveszett':'Megtalált'}: ${x.name}\nTelepülés: ${x.city}\nDátum: ${x.date}\n\n${x.desc}\n\nEz prototípus: kapcsolatfelvételi funkció még nincs bekötve.`);}
-function similarity(a,b){const words=s=>(s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').match(/[a-z0-9]+/g)||[]);const aa=words(a),bb=words(b);return aa.filter(w=>bb.includes(w)).length/Math.max(1,Math.min(aa.length,bb.length));}
-$('itemName').addEventListener('input',()=>{
- const name=$('itemName').value.trim(),kind=$('kind').value,city=$('city').value.trim();if(name.length<4){$('matches').innerHTML='';return;}
- const opposite=kind==='lost'?'found':'lost';const found=items.filter(x=>x.kind===opposite&&(similarity(name,x.name)>=.25||name.toLowerCase().includes(x.category.toLowerCase()))).slice(0,2);
- $('matches').innerHTML=found.length?'<div class="match"><b>Lehetséges egyezés!</b><br>'+found.map(x=>`${escapeHtml(x.name)} – ${escapeHtml(x.city)} (${x.kind==='found'?'megtalált':'elveszett'})`).join('<br>')+'</div>':'';
+function notice(id,text,error=false) {
+  $(id).innerHTML = `<div class="notice ${error?"error":""}">${escapeHTML(text)}</div>`;
+}
+function clearNotice(id){$(id).innerHTML=""}
+
+function hideSections(){
+  $("listSection").classList.add("hidden");
+  $("addSection").classList.add("hidden");
+  $("inboxSection").classList.add("hidden");
+}
+function showListings(){
+  hideSections();$("listSection").classList.remove("hidden");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function goAdd(){
+  if(!currentUser){openAuth();return}
+  hideSections();$("addSection").classList.remove("hidden");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function openAuth(){
+  if(currentUser)return;
+  $("authModal").classList.remove("hidden");
+}
+function closeAuth(){$("authModal").classList.add("hidden")}
+function setAuthMode(mode){
+  authMode=mode;
+  $("authTitle").textContent=mode==="login"?"Belépés":"Regisztráció";
+  $("authSubmit").textContent=mode==="login"?"Belépés":"Regisztráció";
+  $("authPassword").autocomplete=mode==="login"?"current-password":"new-password";
+  clearNotice("authNotice");
+}
+
+async function loadListings(){
+  $("loading").classList.remove("hidden");
+  const {data,error}=await db.from("listings").select("*").order("created_at",{ascending:false}).limit(150);
+  $("loading").classList.add("hidden");
+  if(error){console.error(error);notice("emptyState","Nem sikerült betölteni a hirdetéseket.",true);return}
+  listings=data||[];
+  renderListings();
+}
+function renderListings(){
+  const q=$("searchInput").value.toLocaleLowerCase("hu").trim();
+  const type=$("typeFilter").value;
+  const cat=$("categoryFilter").value;
+  const filtered=listings.filter(x=>
+    (!type||x.item_type===type)&&(!cat||x.category===cat)&&
+    [x.title,x.description,x.location,x.category].join(" ").toLocaleLowerCase("hu").includes(q)
+  );
+  $("resultCount").textContent=filtered.length+" találat";
+  $("listingGrid").innerHTML="";
+  $("emptyState").classList.toggle("hidden",filtered.length!==0);
+  filtered.forEach(item=>{
+    const card=document.createElement("article");
+    card.className="listing";
+    const img=item.image_path
+      ? `<img src="${escapeHTML(db.storage.from("listing-photos").getPublicUrl(item.image_path).data.publicUrl)}" alt="Hirdetés képe" loading="lazy">`
+      : `<div style="height:190px;display:grid;place-items:center;background:#20372a;color:#a6b9a8;font-size:42px">⌕</div>`;
+    card.innerHTML=`
+      ${img}
+      <div class="listing-content">
+        <span class="tag ${item.item_type==="lost"?"lost":""}">${item.item_type==="lost"?"ELVESZETT":"TALÁLT"} · ${escapeHTML(item.category)}</span>
+        <h3>${escapeHTML(item.title)}</h3>
+        <p>${escapeHTML(item.description)}</p>
+        <p>📍 ${escapeHTML(item.location)}</p>
+        <div class="listing-footer">
+          <span class="muted" style="font-size:11px">${new Date(item.created_at).toLocaleDateString("hu-HU")}</span>
+          <button class="btn small" data-contact="${escapeHTML(item.id)}">Kapcsolat</button>
+        </div>
+      </div>`;
+    card.querySelector("[data-contact]").addEventListener("click",()=>contactOwner(item));
+    $("listingGrid").appendChild(card);
+  });
+}
+
+$("authForm").addEventListener("submit",async e=>{
+  e.preventDefault();clearNotice("authNotice");
+  const email=$("authEmail").value.trim();
+  const password=$("authPassword").value;
+  $("authSubmit").disabled=true;
+  try{
+    if(authMode==="signup"){
+      const {data,error}=await db.auth.signUp({email,password});
+      if(error)throw error;
+      if(data.session){
+        notice("authNotice","Sikeres regisztráció és bejelentkezés.");
+      }else{
+        notice("authNotice","Regisztráció sikeres! Ellenőrizd az e-mail-fiókodat, és erősítsd meg a címedet.");
+      }
+    }else{
+      const {error}=await db.auth.signInWithPassword({email,password});
+      if(error)throw error;
+      closeAuth();
+    }
+  }catch(err){notice("authNotice",err.message||"Hiba történt.",true)}
+  finally{$("authSubmit").disabled=false}
 });
-$('reportForm').addEventListener('submit',e=>{
- e.preventDefault();const name=$('itemName').value.trim(),kind=$('kind').value,category=$('category').value,city=$('city').value.trim(),date=$('date').value,desc=$('description').value.trim();
- const icons={'Elektronika':'📱','Pénztárca / táska':'👛','Kulcs':'🔑','Irat':'🪪','Ékszer':'💍','Ruházat':'🧥','Állat':'🐾','Egyéb':'📦'};
- const item={id:Date.now(),kind,category,name,city,date,desc,emoji:icons[category]||'📦'};items.unshift(item);
- try{localStorage.setItem('talaltam_items',JSON.stringify(items.filter(x=>!seed.some(s=>s.id===x.id))));}catch(err){}
- closeModal();$('reportForm').reset();query='';$('heroSearch').value='';$('cityFilter').value='';filter='all';document.querySelectorAll('[data-filter]').forEach(b=>b.classList.toggle('active',b.dataset.filter==='all'));render();toast('A bejelentés elmentve ezen az eszközön.');scrollToListings();
+
+async function updateAuth(session){
+  currentUser=session?.user||null;
+  $("accountBar").classList.toggle("hidden",!currentUser);
+  $("inboxNav").classList.toggle("hidden",!currentUser);
+  if(currentUser){
+    $("userEmail").textContent=currentUser.email||"Bejelentkezett felhasználó";
+    closeAuth();
+    await loadUnreadCount();
+    await loadConversations();
+  }else{
+    $("userEmail").textContent="";
+    $("unreadBadge").textContent="";
+    $("conversationList").innerHTML="";
+    $("chatArea").classList.add("hidden");
+  }
+}
+async function logout(){
+  await db.auth.signOut();
+  activeConversation=null;
+  showListings();
+}
+db.auth.onAuthStateChange((_event,session)=>{
+  setTimeout(()=>updateAuth(session),0);
 });
-render();
+
+async function contactOwner(item){
+  if(!currentUser){openAuth();notice("authNotice","Az üzenetküldéshez először regisztrálj vagy jelentkezz be.");return}
+  if(item.owner_id===currentUser.id){alert("Saját hirdetésedhez nem küldhetsz üzenetet.");return}
+  try{
+    const {data,error}=await db.rpc("start_conversation",{p_listing_id:item.id});
+    if(error)throw error;
+    activeConversation=data;
+    await openInbox();
+    await openConversation(data);
+  }catch(err){alert("Nem sikerült beszélgetést indítani: "+err.message)}
+}
+
+async function loadConversations(){
+  if(!currentUser)return;
+  const {data,error}=await db.from("conversations").select("id,listing_id,owner_id,claimant_id,created_at")
+    .or(`owner_id.eq.${currentUser.id},claimant_id.eq.${currentUser.id}`)
+    .order("created_at",{ascending:false});
+  if(error){console.error(error);return}
+  conversations=data||[];
+  renderConversations();
+}
+async function renderConversations(){
+  const box=$("conversationList");box.innerHTML="";
+  if(!conversations.length){
+    box.innerHTML='<p class="muted">Még nincs beszélgetésed.</p>';return;
+  }
+  for(const c of conversations){
+    const listing=listings.find(x=>x.id===c.listing_id);
+    const {count}=await db.from("messages").select("*",{count:"exact",head:true})
+      .eq("conversation_id",c.id).neq("sender_id",currentUser.id);
+    const {data:read}=await db.from("conversation_reads").select("last_read_at")
+      .eq("conversation_id",c.id).eq("user_id",currentUser.id).maybeSingle();
+    let unread=count||0;
+    if(read){
+      const {count:after}=await db.from("messages").select("*",{count:"exact",head:true})
+        .eq("conversation_id",c.id).neq("sender_id",currentUser.id).gt("created_at",read.last_read_at);
+      unread=after||0;
+    }
+    const b=document.createElement("button");
+    b.className="conversation"+(activeConversation===c.id?" active":"");
+    b.innerHTML=`<strong>${escapeHTML(listing?.title||"Hirdetés")}</strong>
+      <span style="float:right">${unread?`<span class="unread">${unread} új</span>`:""}</span>
+      <div class="muted" style="font-size:12px;margin-top:5px">${c.owner_id===currentUser.id?"Te vagy a hirdető":"Te érdeklődtél"}</div>`;
+    b.addEventListener("click",()=>openConversation(c.id));
+    box.appendChild(b);
+  }
+}
+async function loadUnreadCount(){
+  if(!currentUser)return;
+  let total=0;
+  for(const c of conversations){
+    const {data:read}=await db.from("conversation_reads").select("last_read_at")
+      .eq("conversation_id",c.id).eq("user_id",currentUser.id).maybeSingle();
+    let query=db.from("messages").select("*",{count:"exact",head:true})
+      .eq("conversation_id",c.id).neq("sender_id",currentUser.id);
+    if(read)query=query.gt("created_at",read.last_read_at);
+    const {count}=await query;
+    total+=count||0;
+  }
+  $("unreadBadge").textContent=total?`(${total})`:"";
+}
+async function openInbox(){
+  if(!currentUser){openAuth();return}
+  hideSections();$("inboxSection").classList.remove("hidden");
+  await loadListings();await loadConversations();await loadUnreadCount();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+async function openConversation(id){
+  activeConversation=id;
+  $("chatArea").classList.remove("hidden");
+  const c=conversations.find(x=>x.id===id);
+  const listing=listings.find(x=>x.id===c?.listing_id);
+  $("chatTitle").textContent=listing?.title||"Beszélgetés";
+  await loadMessages(id);
+  await db.from("conversation_reads").upsert({
+    conversation_id:id,user_id:currentUser.id,last_read_at:new Date().toISOString()
+  },{onConflict:"conversation_id,user_id"});
+  await loadUnreadCount();await renderConversations();
+}
+async function loadMessages(id){
+  const {data,error}=await db.from("messages").select("*")
+    .eq("conversation_id",id).order("created_at",{ascending:true});
+  if(error){notice("messageNotice","Nem sikerült betölteni az üzeneteket.",true);return}
+  const box=$("chatMessages");box.innerHTML="";
+  (data||[]).forEach(m=>{
+    const div=document.createElement("div");
+    div.className="msg"+(m.sender_id===currentUser.id?" mine":"");
+    div.textContent=m.body;
+    const time=document.createElement("small");
+    time.textContent=new Date(m.created_at).toLocaleString("hu-HU");
+    div.appendChild(time);box.appendChild(div);
+  });
+  box.scrollTop=box.scrollHeight;
+}
+$("messageForm").addEventListener("submit",async e=>{
+  e.preventDefault();clearNotice("messageNotice");
+  if(!activeConversation||!currentUser)return;
+  const body=$("messageText").value.trim();
+  if(!body)return;
+  const btn=e.submitter; if(btn)btn.disabled=true;
+  const {error}=await db.from("messages").insert({
+    conversation_id:activeConversation,sender_id:currentUser.id,body
+  });
+  if(error){notice("messageNotice",error.message,true)}
+  else{
+    $("messageText").value="";
+    await loadMessages(activeConversation);
+    await db.from("conversation_reads").upsert({
+      conversation_id:activeConversation,user_id:currentUser.id,last_read_at:new Date().toISOString()
+    },{onConflict:"conversation_id,user_id"});
+    await loadConversations();await loadUnreadCount();
+  }
+  if(btn)btn.disabled=false;
+});
+
+$("listingForm").addEventListener("submit",async e=>{
+  e.preventDefault();clearNotice("listingNotice");
+  if(!currentUser){openAuth();return}
+  const btn=$("submitListing");btn.disabled=true;btn.textContent="Feltöltés...";
+  try{
+    const file=$("itemImage").files[0];
+    let imagePath=null;
+    if(file){
+      if(file.size>5*1024*1024)throw new Error("A kép legfeljebb 5 MB lehet.");
+      if(!["image/jpeg","image/png","image/webp"].includes(file.type))throw new Error("Csak JPG, PNG vagy WebP kép tölthető fel.");
+      const ext=file.type==="image/png"?"png":file.type==="image/webp"?"webp":"jpg";
+      imagePath=`${currentUser.id}/${crypto.randomUUID()}.${ext}`;
+      const {error:uploadError}=await db.storage.from("listing-photos").upload(imagePath,file,{contentType:file.type,upsert:false});
+      if(uploadError)throw uploadError;
+    }
+    const {error}=await db.from("listings").insert({
+      owner_id:currentUser.id,
+      item_type:$("itemType").value,
+      category:$("itemCategory").value,
+      title:$("itemTitle").value.trim(),
+      description:$("itemDescription").value.trim(),
+      location:$("itemLocation").value.trim(),
+      image_path:imagePath
+    });
+    if(error)throw error;
+    $("listingForm").reset();
+    notice("listingNotice","A hirdetés sikeresen megjelent!");
+    await loadListings();showListings();
+  }catch(err){notice("listingNotice",err.message||"Nem sikerült feltölteni.",true)}
+  finally{btn.disabled=false;btn.textContent="Hirdetés közzététele"}
+});
+
+async function start(){
+  if(SUPABASE_URL.includes("IDE_")||SUPABASE_KEY.includes("IDE_")){
+    $("loading").textContent="A Supabase kapcsolat még nincs beállítva. A kódban add meg a Project URL-t és a Publishable key-t.";
+    return;
+  }
+  const {data}=await db.auth.getSession();
+  await updateAuth(data.session);
+  await loadListings();
+  // Az olvasatlan üzenetek jelzése időszakosan frissül.
+  refreshTimer=setInterval(async()=>{
+    if(currentUser){await loadConversations();await loadUnreadCount()}
+  },20000);
+}
+start();
 </script>
 </body>
 </html>
