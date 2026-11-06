@@ -114,4 +114,471 @@ label{display:block;font-size:13px;color:var(--muted);margin:12px 0 6px}
   flex-wrap:wrap;padding:15px;background:var(--panel);
   border:1px solid var(--border);border-radius:14px;margin-top:20px;
 }
-.unread{background:#d8a84e;color:#14251b;border-radius:20px;padding
+.unread{background:#d8a84e;color:#14251b;border-radius:20px;padding:4px 8px;font-size:12px;font-weight:bold}
+.conversation{
+  border:1px solid var(--border);padding:13px;border-radius:12px;
+  margin:9px 0;background:#102219;text-align:left;width:100%;color:var(--text);
+}
+.conversation.active{border-color:var(--gold)}
+.chat-box{background:#0e1c15;border-radius:12px;padding:12px;margin-top:12px;max-height:350px;overflow:auto}
+.msg{padding:10px 12px;margin:8px 0;border-radius:12px;max-width:85%;background:#243b2c;overflow-wrap:anywhere}
+.msg.mine{margin-left:auto;background:#3d573b}
+.msg small{display:block;color:#bdc9bd;font-size:10px;margin-top:5px}
+.row{display:flex;gap:9px;align-items:center}
+.row>*{flex:1}
+footer{text-align:center;color:var(--muted);padding:35px 15px;font-size:13px}
+@media(max-width:800px){.listings{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){
+  .listings{grid-template-columns:1fr}
+  .filters{grid-template-columns:1fr}
+  .nav{align-items:flex-start;flex-direction:column}
+  .hero{padding:38px 18px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav">
+    <div class="logo">Találtam<span>!</span></div>
+    <div class="nav-actions">
+      <button class="btn ghost small" onclick="showListings()">Keresés</button>
+      <button class="btn small" onclick="openAuth()">Belépés / Regisztráció</button>
+      <button class="btn gold small hidden" id="inboxNav" onclick="openInbox()">
+        Üzeneteim <span id="unreadBadge"></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <section class="hero" id="home">
+    <h1>Találtál valamit? <span>Vagy elveszett?</span></h1>
+    <p>Egy hely, ahol az elveszett tárgyak és megtalálóik egymásra találhatnak.
+       Keress, jelents be egy tárgyat, és segíts valakinek hazatalálni.</p>
+    <div class="row" style="max-width:430px;margin:auto">
+      <button class="btn gold" onclick="showListings()">Tárgy keresése</button>
+      <button class="btn" onclick="goAdd()">Hirdetés feltöltése</button>
+    </div>
+  </section>
+
+  <div class="account-bar hidden" id="accountBar">
+    <div>
+      <strong id="userEmail"></strong>
+      <div class="muted" style="font-size:12px;margin-top:4px">Bejelentkezve</div>
+    </div>
+    <button class="btn ghost small" onclick="logout()">Kilépés</button>
+  </div>
+
+  <section id="listSection">
+    <div class="section-title">
+      <h2>Elveszett és megtalált tárgyak</h2>
+      <span class="muted" id="resultCount"></span>
+    </div>
+    <div class="filters">
+      <input id="searchInput" placeholder="Mit keresel? Például kulcs, telefon..." oninput="renderListings()">
+      <select id="typeFilter" onchange="renderListings()">
+        <option value="">Minden hirdetés</option>
+        <option value="lost">Elveszett tárgyak</option>
+        <option value="found">Talált tárgyak</option>
+      </select>
+      <select id="categoryFilter" onchange="renderListings()">
+        <option value="">Minden kategória</option>
+        <option>Okmány, irat</option>
+        <option>Kulcs</option>
+        <option>Telefon, elektronika</option>
+        <option>Táska, pénztárca</option>
+        <option>Ékszer</option>
+        <option>Ruházat</option>
+        <option>Állat</option>
+        <option>Jármű, rendszám</option>
+        <option>Egyéb</option>
+      </select>
+    </div>
+    <div id="loading" class="notice">Hirdetések betöltése...</div>
+    <div class="listings" id="listingGrid"></div>
+    <div id="emptyState" class="notice hidden">Még nincs hirdetés. Legyél te az első, aki feltölt egyet!</div>
+  </section>
+
+  <section id="addSection" class="hidden">
+    <div class="section-title"><h2>Új hirdetés feltöltése</h2></div>
+    <div class="form-card">
+      <p class="muted">A hirdetés feltöltéséhez bejelentkezés szükséges.</p>
+      <form id="listingForm">
+        <label>Hirdetés típusa</label>
+        <select id="itemType" required>
+          <option value="lost">Elveszett tárgyat keresek</option>
+          <option value="found">Talált tárgyat jelentek be</option>
+        </select>
+        <label>Kategória</label>
+        <select id="itemCategory" required>
+          <option>Okmány, irat</option><option>Kulcs</option>
+          <option>Telefon, elektronika</option><option>Táska, pénztárca</option>
+          <option>Ékszer</option><option>Ruházat</option>
+          <option>Állat</option><option>Jármű, rendszám</option><option>Egyéb</option>
+        </select>
+        <label>Hirdetés címe</label>
+        <input id="itemTitle" maxlength="120" required placeholder="Például: Fekete kulcscsomót találtam">
+        <label>Leírás</label>
+        <textarea id="itemDescription" maxlength="3000" required placeholder="Írd le, mit vesztettél el vagy mit találtál. Személyes adatot ne adj meg!"></textarea>
+        <label>Helyszín</label>
+        <input id="itemLocation" required maxlength="150" placeholder="Például: Debrecen, belváros">
+        <label>Fénykép (nem kötelező, maximum 5 MB)</label>
+        <input id="itemImage" type="file" accept="image/jpeg,image/png,image/webp">
+        <p class="muted" style="font-size:12px">Okmányt, rendszámot vagy személyes adatot tartalmazó képen takard ki az érzékeny adatokat!</p>
+        <button class="btn gold" id="submitListing" type="submit">Hirdetés közzététele</button>
+        <div id="listingNotice"></div>
+      </form>
+    </div>
+  </section>
+
+  <section id="inboxSection" class="hidden">
+    <div class="section-title"><h2>Üzeneteim</h2><button class="btn ghost small" onclick="showListings()">Vissza</button></div>
+    <div class="message-card">
+      <div id="conversationList"></div>
+      <div id="chatArea" class="hidden">
+        <h3 id="chatTitle"></h3>
+        <div class="chat-box" id="chatMessages"></div>
+        <form id="messageForm" style="margin-top:12px">
+          <label>Üzenet</label>
+          <textarea id="messageText" maxlength="3000" required placeholder="Írd ide az üzeneted..."></textarea>
+          <button class="btn gold" type="submit">Üzenet küldése</button>
+          <div id="messageNotice"></div>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  Találtam! – Elveszett és megtalált tárgyak<br>
+  <span>Segítsünk egymásnak megtalálni, ami elveszett.</span>
+</footer>
+
+<div class="modal hidden" id="authModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2 id="authTitle">Belépés</h2>
+      <button class="close" type="button" onclick="closeAuth()">×</button>
+    </div>
+    <div class="row" style="margin-top:16px">
+      <button class="btn small" type="button" onclick="setAuthMode('login')">Belépés</button>
+      <button class="btn ghost small" type="button" onclick="setAuthMode('signup')">Regisztráció</button>
+    </div>
+    <form id="authForm">
+      <label>E-mail-cím</label>
+      <input id="authEmail" type="email" required autocomplete="email">
+      <label>Jelszó</label>
+      <input id="authPassword" type="password" required minlength="6" autocomplete="current-password">
+      <button class="btn gold" style="width:100%;margin-top:16px" id="authSubmit">Belépés</button>
+      <div id="authNotice"></div>
+    </form>
+  </div>
+</div>
+
+<script>
+// 1. SUPABASE ADATOK
+const SUPABASE_URL = "https://dsmnxydripaymqgydfjm.supabase.co";
+const SUPABASE_KEY = "sb_publishable_ZATBsrxmIDGPlmR_81nnQg_9U8hJWv6";
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentUser = null;
+let listings = [];
+let activeConversation = null;
+let conversations = [];
+let authMode = "login";
+let refreshTimer = null;
+
+const $ = id => document.getElementById(id);
+
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  })[c]);
+}
+function notice(id,text,error=false) {
+  $(id).innerHTML = `<div class="notice ${error?"error":""}">${escapeHTML(text)}</div>`;
+}
+function clearNotice(id){$(id).innerHTML=""}
+
+function hideSections(){
+  $("listSection").classList.add("hidden");
+  $("addSection").classList.add("hidden");
+  $("inboxSection").classList.add("hidden");
+}
+function showListings(){
+  hideSections();$("listSection").classList.remove("hidden");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function goAdd(){
+  if(!currentUser){openAuth();return}
+  hideSections();$("addSection").classList.remove("hidden");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function openAuth(){
+  if(currentUser)return;
+  $("authModal").classList.remove("hidden");
+}
+function closeAuth(){$("authModal").classList.add("hidden")}
+function setAuthMode(mode){
+  authMode=mode;
+  $("authTitle").textContent=mode==="login"?"Belépés":"Regisztráció";
+  $("authSubmit").textContent=mode==="login"?"Belépés":"Regisztráció";
+  $("authPassword").autocomplete=mode==="login"?"current-password":"new-password";
+  clearNotice("authNotice");
+}
+
+async function loadListings(){
+  $("loading").classList.remove("hidden");
+  const {data,error}=await db.from("listings").select("*").order("created_at",{ascending:false}).limit(150);
+  $("loading").classList.add("hidden");
+  if(error){console.error(error);notice("emptyState","Nem sikerült betölteni a hirdetéseket.",true);return}
+  listings=data||[];
+  renderListings();
+}
+function renderListings(){
+  const q=$("searchInput").value.toLocaleLowerCase("hu").trim();
+  const type=$("typeFilter").value;
+  const cat=$("categoryFilter").value;
+  const filtered=listings.filter(x=>
+    (!type||x.item_type===type)&&(!cat||x.category===cat)&&
+    [x.title,x.description,x.location,x.category].join(" ").toLocaleLowerCase("hu").includes(q)
+  );
+  $("resultCount").textContent=filtered.length+" találat";
+  $("listingGrid").innerHTML="";
+  $("emptyState").classList.toggle("hidden",filtered.length!==0);
+  filtered.forEach(item=>{
+    const card=document.createElement("article");
+    card.className="listing";
+    const img=item.image_path
+      ? `<img src="${escapeHTML(db.storage.from("listing-photos").getPublicUrl(item.image_path).data.publicUrl)}" alt="Hirdetés képe" loading="lazy">`
+      : `<div style="height:190px;display:grid;place-items:center;background:#20372a;color:#a6b9a8;font-size:42px">⌕</div>`;
+    card.innerHTML=`
+      ${img}
+      <div class="listing-content">
+        <span class="tag ${item.item_type==="lost"?"lost":""}">${item.item_type==="lost"?"ELVESZETT":"TALÁLT"} · ${escapeHTML(item.category)}</span>
+        <h3>${escapeHTML(item.title)}</h3>
+        <p>${escapeHTML(item.description)}</p>
+        <p>📍 ${escapeHTML(item.location)}</p>
+        <div class="listing-footer">
+          <span class="muted" style="font-size:11px">${new Date(item.created_at).toLocaleDateString("hu-HU")}</span>
+          <button class="btn small" type="button" data-contact="${escapeHTML(item.id)}">Kapcsolat</button>
+        </div>
+      </div>`;
+    card.querySelector("[data-contact]").addEventListener("click",()=>contactOwner(item));
+    $("listingGrid").appendChild(card);
+  });
+}
+
+$("authForm").addEventListener("submit",async e=>{
+  e.preventDefault();clearNotice("authNotice");
+  const email=$("authEmail").value.trim();
+  const password=$("authPassword").value;
+  $("authSubmit").disabled=true;
+  try{
+    if(authMode==="signup"){
+      const {data,error}=await db.auth.signUp({email,password});
+      if(error)throw error;
+      if(data.session){
+        notice("authNotice","Sikeres regisztráció és bejelentkezés.");
+      }else{
+        notice("authNotice","Regisztráció sikeres! Ellenőrizd az e-mail-fiókodat, és erősítsd meg a címedet.");
+      }
+    }else{
+      const {error}=await db.auth.signInWithPassword({email,password});
+      if(error)throw error;
+      closeAuth();
+    }
+  }catch(err){notice("authNotice",err.message||"Hiba történt.",true)}
+  finally{$("authSubmit").disabled=false}
+});
+
+async function updateAuth(session){
+  currentUser=session?.user||null;
+  $("accountBar").classList.toggle("hidden",!currentUser);
+  $("inboxNav").classList.toggle("hidden",!currentUser);
+  if(currentUser){
+    $("userEmail").textContent=currentUser.email||"Bejelentkezett felhasználó";
+    closeAuth();
+    await loadUnreadCount();
+    await loadConversations();
+  }else{
+    $("userEmail").textContent="";
+    $("unreadBadge").textContent="";
+    $("conversationList").innerHTML="";
+    $("chatArea").classList.add("hidden");
+  }
+}
+async function logout(){
+  await db.auth.signOut();
+  activeConversation=null;
+  showListings();
+}
+db.auth.onAuthStateChange((_event,session)=>{
+  setTimeout(()=>updateAuth(session),0);
+});
+
+async function contactOwner(item){
+  if(!currentUser){openAuth();notice("authNotice","Az üzenetküldéshez először regisztrálj vagy jelentkezz be.");return}
+  if(item.owner_id===currentUser.id){alert("Saját hirdetésedhez nem küldhetsz üzenetet.");return}
+  try{
+    const {data,error}=await db.rpc("start_conversation",{p_listing_id:item.id});
+    if(error)throw error;
+    activeConversation=data;
+    await openInbox();
+    await openConversation(data);
+  }catch(err){alert("Nem sikerült beszélgetést indítani: "+err.message)}
+}
+
+async function loadConversations(){
+  if(!currentUser)return;
+  const {data,error}=await db.from("conversations").select("id,listing_id,owner_id,claimant_id,created_at")
+    .or(`owner_id.eq.${currentUser.id},claimant_id.eq.${currentUser.id}`)
+    .order("created_at",{ascending:false});
+  if(error){console.error(error);return}
+  conversations=data||[];
+  renderConversations();
+}
+async function renderConversations(){
+  const box=$("conversationList");box.innerHTML="";
+  if(!conversations.length){
+    box.innerHTML='<p class="muted">Még nincs beszélgetésed.</p>';return;
+  }
+  for(const c of conversations){
+    const listing=listings.find(x=>x.id===c.listing_id);
+    const {count}=await db.from("messages").select("*",{count:"exact",head:true})
+      .eq("conversation_id",c.id).neq("sender_id",currentUser.id);
+    const {data:read}=await db.from("conversation_reads").select("last_read_at")
+      .eq("conversation_id",c.id).eq("user_id",currentUser.id).maybeSingle();
+    let unread=count||0;
+    if(read){
+      const {count:after}=await db.from("messages").select("*",{count:"exact",head:true})
+        .eq("conversation_id",c.id).neq("sender_id",currentUser.id).gt("created_at",read.last_read_at);
+      unread=after||0;
+    }
+    const b=document.createElement("button");
+    b.type="button";
+    b.className="conversation"+(activeConversation===c.id?" active":"");
+    b.innerHTML=`<strong>${escapeHTML(listing?.title||"Hirdetés")}</strong>
+      <span style="float:right">${unread?`<span class="unread">${unread} új</span>`:""}</span>
+      <div class="muted" style="font-size:12px;margin-top:5px">${c.owner_id===currentUser.id?"Te vagy a hirdető":"Te érdeklődtél"}</div>`;
+    b.addEventListener("click",()=>openConversation(c.id));
+    box.appendChild(b);
+  }
+}
+async function loadUnreadCount(){
+  if(!currentUser)return;
+  let total=0;
+  for(const c of conversations){
+    const {data:read}=await db.from("conversation_reads").select("last_read_at")
+      .eq("conversation_id",c.id).eq("user_id",currentUser.id).maybeSingle();
+    let query=db.from("messages").select("*",{count:"exact",head:true})
+      .eq("conversation_id",c.id).neq("sender_id",currentUser.id);
+    if(read)query=query.gt("created_at",read.last_read_at);
+    const {count}=await query;
+    total+=count||0;
+  }
+  $("unreadBadge").textContent=total?`(${total})`:"";
+}
+async function openInbox(){
+  if(!currentUser){openAuth();return}
+  hideSections();$("inboxSection").classList.remove("hidden");
+  await loadListings();await loadConversations();await loadUnreadCount();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+async function openConversation(id){
+  activeConversation=id;
+  $("chatArea").classList.remove("hidden");
+  const c=conversations.find(x=>x.id===id);
+  const listing=listings.find(x=>x.id===c?.listing_id);
+  $("chatTitle").textContent=listing?.title||"Beszélgetés";
+  await loadMessages(id);
+  await db.from("conversation_reads").upsert({
+    conversation_id:id,user_id:currentUser.id,last_read_at:new Date().toISOString()
+  },{onConflict:"conversation_id,user_id"});
+  await loadUnreadCount();await renderConversations();
+}
+async function loadMessages(id){
+  const {data,error}=await db.from("messages").select("*")
+    .eq("conversation_id",id).order("created_at",{ascending:true});
+  if(error){notice("messageNotice","Nem sikerült betölteni az üzeneteket.",true);return}
+  const box=$("chatMessages");box.innerHTML="";
+  (data||[]).forEach(m=>{
+    const div=document.createElement("div");
+    div.className="msg"+(m.sender_id===currentUser.id?" mine":"");
+    div.textContent=m.body;
+    const time=document.createElement("small");
+    time.textContent=new Date(m.created_at).toLocaleString("hu-HU");
+    div.appendChild(time);box.appendChild(div);
+  });
+  box.scrollTop=box.scrollHeight;
+}
+$("messageForm").addEventListener("submit",async e=>{
+  e.preventDefault();clearNotice("messageNotice");
+  if(!activeConversation||!currentUser)return;
+  const body=$("messageText").value.trim();
+  if(!body)return;
+  const btn=e.submitter; if(btn)btn.disabled=true;
+  const {error}=await db.from("messages").insert({
+    conversation_id:activeConversation,sender_id:currentUser.id,body
+  });
+  if(error){notice("messageNotice",error.message,true)}
+  else{
+    $("messageText").value="";
+    await loadMessages(activeConversation);
+    await db.from("conversation_reads").upsert({
+      conversation_id:activeConversation,user_id:currentUser.id,last_read_at:new Date().toISOString()
+    },{onConflict:"conversation_id,user_id"});
+    await loadConversations();await loadUnreadCount();
+  }
+  if(btn)btn.disabled=false;
+});
+
+$("listingForm").addEventListener("submit",async e=>{
+  e.preventDefault();clearNotice("listingNotice");
+  if(!currentUser){openAuth();return}
+  const btn=$("submitListing");btn.disabled=true;btn.textContent="Feltöltés...";
+  try{
+    const file=$("itemImage").files[0];
+    let imagePath=null;
+    if(file){
+      if(file.size>5*1024*1024)throw new Error("A kép legfeljebb 5 MB lehet.");
+      if(!["image/jpeg","image/png","image/webp"].includes(file.type))throw new Error("Csak JPG, PNG vagy WebP kép tölthető fel.");
+      const ext=file.type==="image/png"?"png":file.type==="image/webp"?"webp":"jpg";
+      imagePath=`${currentUser.id}/${crypto.randomUUID()}.${ext}`;
+      const {error:uploadError}=await db.storage.from("listing-photos").upload(imagePath,file,{contentType:file.type,upsert:false});
+      if(uploadError)throw uploadError;
+    }
+    const {error}=await db.from("listings").insert({
+      owner_id:currentUser.id,
+      item_type:$("itemType").value,
+      category:$("itemCategory").value,
+      title:$("itemTitle").value.trim(),
+      description:$("itemDescription").value.trim(),
+      location:$("itemLocation").value.trim(),
+      image_path:imagePath
+    });
+    if(error)throw error;
+    $("listingForm").reset();
+    notice("listingNotice","A hirdetés sikeresen megjelent!");
+    await loadListings();showListings();
+  }catch(err){notice("listingNotice",err.message||"Nem sikerült feltölteni.",true)}
+  finally{btn.disabled=false;btn.textContent="Hirdetés közzététele"}
+});
+
+async function start(){
+  if(SUPABASE_URL.includes("IDE_")||SUPABASE_KEY.includes("IDE_")){
+    $("loading").textContent="A Supabase kapcsolat még nincs beállítva. A kódban add meg a Project URL-t és a Publishable key-t.";
+    return;
+  }
+  const {data}=await db.auth.getSession();
+  await updateAuth(data.session);
+  await loadListings();
+  refreshTimer=setInterval(async()=>{
+    if(currentUser){await loadConversations();await loadUnreadCount()}
+  },20000);
+}
+start();
+</script>
+</body>
+</html>
