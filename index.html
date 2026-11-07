@@ -282,6 +282,19 @@ footer{text-align:center;color:var(--muted);padding:35px 15px;font-size:13px}
       <input id="authEmail" type="email" required autocomplete="email">
       <label>Jelszó</label>
       <input id="authPassword" type="password" required minlength="6" autocomplete="current-password">
+      
+      <!-- Jogi pipák regisztrációhoz -->
+      <div id="legalCheckboxes" style="margin: 15px 0; font-size: 13px; text-align: left; display: none;">
+        <label style="display: block; margin-bottom: 8px; cursor: pointer;">
+          <input type="checkbox" id="terms" style="margin-right: 6px;">
+          Elfogadom az <a href="aszf.html" target="_blank" style="color: var(--gold); text-decoration: underline;">ÁSZF</a>-et.
+        </label>
+        <label style="display: block; cursor: pointer;">
+          <input type="checkbox" id="privacy" style="margin-right: 6px;">
+          Elolvastam az <a href="adatvedelem.html" target="_blank" style="color: var(--gold); text-decoration: underline;">Adatvédelmi Tájékoztatót</a>.
+        </label>
+      </div>
+
       <button class="btn gold" style="width:100%;margin-top:16px" id="authSubmit">Belépés</button>
       <div id="authNotice"></div>
     </form>
@@ -301,7 +314,6 @@ footer{text-align:center;color:var(--muted);padding:35px 15px;font-size:13px}
 </div>
 
 <script>
-// 1. SUPABASE ADATOK
 const SUPABASE_URL = "https://dsmnxydripaymqgydfjm.supabase.co";
 const SUPABASE_KEY = "sb_publishable_ZATBsrxmIDGPlmR_81nnQg_9U8hJWv6";
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -372,6 +384,7 @@ function goAdd(editItem = null){
 }
 function openAuth(){
   if(currentUser)return;
+  setAuthMode("login");
   $("authModal").classList.remove("hidden");
 }
 function closeAuth(){$("authModal").classList.add("hidden")}
@@ -383,12 +396,43 @@ function closeImageModal(){
   $("imageModal").classList.add("hidden");
   $("fullSizeImage").src = "";
 }
+
 function setAuthMode(mode){
-  authMode=mode;
-  $("authTitle").textContent=mode==="login"?"Belépés":"Regisztráció";
-  $("authSubmit").textContent=mode==="login"?"Belépés":"Regisztráció";
-  $("authPassword").autocomplete=mode==="login"?"current-password":"new-password";
+  authMode = mode;
+  $("authTitle").textContent = mode === "login" ? "Belépés" : "Regisztráció";
+  $("authSubmit").textContent = mode === "login" ? "Belépés" : "Regisztráció";
+  $("authPassword").autocomplete = mode === "login" ? "current-password" : "new-password";
   clearNotice("authNotice");
+  
+  const legalBox = $("legalCheckboxes");
+  const submitBtn = $("authSubmit");
+  
+  if(mode === "signup"){
+    legalBox.style.display = "block";
+    checkAuthButton();
+  } else {
+    legalBox.style.display = "none";
+    submitBtn.disabled = false;
+    submitBtn.style.opacity = "1";
+    submitBtn.style.cursor = "pointer";
+  }
+}
+
+function checkAuthButton(){
+  if(authMode === "signup"){
+    const t = $("terms").checked;
+    const p = $("privacy").checked;
+    const btn = $("authSubmit");
+    if(t && p){
+      btn.disabled = false;
+      btn.style.opacity = "1";
+      btn.style.cursor = "pointer";
+    } else {
+      btn.disabled = true;
+      btn.style.opacity = "0.5";
+      btn.style.cursor = "not-allowed";
+    }
+  }
 }
 
 async function loadListings(){
@@ -472,7 +516,13 @@ $("authForm").addEventListener("submit",async e=>{
       const {data,error}=await db.auth.signUp({
         email,
         password,
-        options: { emailRedirectTo: window.location.origin }
+        options: { 
+          emailRedirectTo: window.location.origin,
+          data: {
+            accepted_terms_at: new Date().toISOString(),
+            accepted_privacy_at: new Date().toISOString()
+          }
+        }
       });
       if(error)throw error;
       if(data.session){
@@ -486,7 +536,10 @@ $("authForm").addEventListener("submit",async e=>{
       closeAuth();
     }
   }catch(err){notice("authNotice",err.message||"Hiba történt.",true)}
-  finally{$("authSubmit").disabled=false}
+  finally{
+    if(authMode === "login") $("authSubmit").disabled=false;
+    else checkAuthButton();
+  }
 });
 
 async function updateAuth(session){
@@ -693,6 +746,9 @@ $("listingForm").addEventListener("submit",async e=>{
   }catch(err){notice("listingNotice",err.message||"Sikertelen mentés.",true)}
   finally{submitBtn.disabled=false}
 });
+
+$("terms").addEventListener("change", checkAuthButton);
+$("privacy").addEventListener("change", checkAuthButton);
 
 loadListings();
 </script>
