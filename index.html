@@ -280,12 +280,15 @@ footer{text-align:center;color:var(--muted);padding:35px 15px;font-size:13px}
     <form id="authForm">
       <label>E-mail-cím</label>
       <input id="authEmail" type="email" required autocomplete="email">
+      
       <label>Jelszó</label>
       <input id="authPassword" type="password" required minlength="6" autocomplete="current-password">
-            <div style="text-align: right; margin-top: 6px;">
-        <button type="button" onclick="handleForgotPassword()" style="background: none; border: none; color: var(--gold); font-size: 12px; cursor: pointer; padding: 0;">Elfelejtetted a jelszavad?</button>
-            </div>
       
+      <!-- Elfelejtett jelszó gomb -->
+      <div style="text-align: right; margin-top: 6px;">
+        <button type="button" onclick="handleForgotPassword()" style="background: none; border: none; color: var(--gold); font-size: 12px; cursor: pointer; padding: 0;">Elfelejtetted a jelszavad?</button>
+      </div>
+
       <!-- Jogi pipák regisztrációhoz -->
       <div id="legalCheckboxes" style="margin: 15px 0; font-size: 13px; text-align: left; display: none;">
         <label style="display: block; margin-bottom: 8px; cursor: pointer;">
@@ -507,6 +510,23 @@ function renderListings(){
 
     $("listingGrid").appendChild(card);
   });
+}
+
+async function handleForgotPassword() {
+  const email = $("authEmail").value.trim();
+  if(!email) {
+    notice("authNotice", "Kérjük, először írd be az e-mail-címed a fenti mezőbe!", true);
+    return;
+  }
+  try {
+    const { error } = await db.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin,
+    });
+    if(error) throw error;
+    notice("authNotice", "A jelszó-visszaállító e-mailt elküldtük. Kérjük, ellenőrizd a postafiókodat!");
+  } catch(err) {
+    notice("authNotice", err.message || "Hiba történt a kérés küldésekor.", true);
+  }
 }
 
 $("authForm").addEventListener("submit",async e=>{
