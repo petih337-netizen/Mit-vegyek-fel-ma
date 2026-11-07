@@ -273,19 +273,19 @@ footer{text-align:center;color:var(--muted);padding:35px 15px;font-size:13px}
       <h2 id="authTitle">Belépés</h2>
       <button class="close" type="button" onclick="closeAuth()">×</button>
     </div>
-    <div class="row" style="margin-top:16px">
+    <div class="row" id="authTabs" style="margin-top:16px">
       <button class="btn small" type="button" onclick="setAuthMode('login')">Belépés</button>
       <button class="btn ghost small" type="button" onclick="setAuthMode('signup')">Regisztráció</button>
     </div>
     <form id="authForm">
-      <label>E-mail-cím</label>
+      <label id="emailLabel">E-mail-cím</label>
       <input id="authEmail" type="email" required autocomplete="email">
       
-      <label>Jelszó</label>
+      <label id="passwordLabel">Jelszó</label>
       <input id="authPassword" type="password" required minlength="6" autocomplete="current-password">
       
       <!-- Elfelejtett jelszó gomb -->
-      <div style="text-align: right; margin-top: 6px;">
+      <div style="text-align: right; margin-top: 6px;" id="forgotWrapper">
         <button type="button" onclick="handleForgotPassword()" style="background: none; border: none; color: var(--gold); font-size: 12px; cursor: pointer; padding: 0;">Elfelejtetted a jelszavad?</button>
       </div>
 
@@ -412,7 +412,29 @@ function setAuthMode(mode){
   
   const legalBox = $("legalCheckboxes");
   const submitBtn = $("authSubmit");
+  const authTabs = $("authTabs");
+  const forgotWrapper = $("forgotWrapper");
+  const emailField = $("authEmail").parentElement;
   
+  if(mode === "update_password"){
+    $("authTitle").textContent = "Új jelszó megadása";
+    $("authSubmit").textContent = "Jelszó mentése";
+    if(authTabs) authTabs.style.display = "none";
+    if(forgotWrapper) forgotWrapper.style.display = "none";
+    if(emailField) emailField.style.display = "none";
+    if(legalBox) legalBox.style.display = "none";
+    $("authPassword").placeholder = "Add meg az új jelszót (min. 6 karakter)";
+    submitBtn.disabled = false;
+    submitBtn.style.opacity = "1";
+    submitBtn.style.cursor = "pointer";
+    return;
+  }
+
+  if(authTabs) authTabs.style.display = "flex";
+  if(forgotWrapper) forgotWrapper.style.display = "block";
+  if(emailField) emailField.style.display = "block";
+  $("authPassword").placeholder = "";
+
   if(mode === "signup"){
     legalBox.style.display = "block";
     checkAuthButton();
@@ -553,6 +575,14 @@ $("authForm").addEventListener("submit",async e=>{
       }else{
         notice("authNotice","Regisztráció sikeres! Kérjük, ellenőrizd az e-mail-fiókodat, és erősítsd meg a regisztrációt a kapott linken.");
       }
+    }else if(authMode==="update_password"){
+      const {error}=await db.auth.updateUser({ password: password });
+      if(error)throw error;
+      notice("authNotice","Sikeres jelszóváltoztatás! Mostantól az új jelszóval léphetsz be.");
+      setTimeout(()=>{
+        closeAuth();
+        setAuthMode("login");
+      }, 2000);
     }else{
       const {error}=await db.auth.signInWithPassword({email,password});
       if(error)throw error;
@@ -560,7 +590,7 @@ $("authForm").addEventListener("submit",async e=>{
     }
   }catch(err){notice("authNotice",err.message||"Hiba történt.",true)}
   finally{
-    if(authMode === "login") $("authSubmit").disabled=false;
+    if(authMode === "login" || authMode === "update_password") $("authSubmit").disabled=false;
     else checkAuthButton();
   }
 });
@@ -589,8 +619,15 @@ async function logout(){
   activeConversation=null;
   showListings();
 }
-db.auth.onAuthStateChange((_event,session)=>{
-  setTimeout(()=>updateAuth(session),0);
+
+db.auth.onAuthStateChange(async (event, session) => {
+  if (event === "PASSWORD_RECOVERY") {
+    openAuth();
+    setAuthMode("update_password");
+    notice("authNotice", "Kérjük, add meg az új jelszavadat!");
+  } else {
+    setTimeout(() => updateAuth(session), 0);
+  }
 });
 
 async function contactOwner(item){
