@@ -81,7 +81,8 @@ label{display:block;font-size:13px;color:var(--muted);margin:12px 0 6px}
   overflow:hidden;background:var(--panel);border:1px solid var(--border);
   border-radius:17px;display:flex;flex-direction:column;
 }
-.listing img{width:100%;height:190px;object-fit:cover;background:#20372a}
+.listing img{width:100%;height:190px;object-fit:cover;background:#20372a;cursor:pointer;transition:filter .2s}
+.listing img:hover{filter:brightness(1.08)}
 .listing-content{padding:16px;display:flex;flex-direction:column;gap:9px;flex:1}
 .tag{
   display:inline-block;padding:5px 9px;border-radius:20px;
@@ -104,6 +105,14 @@ label{display:block;font-size:13px;color:var(--muted);margin:12px 0 6px}
 .modal-head{display:flex;justify-content:space-between;align-items:center}
 .modal-head h2{margin:0}
 .close{background:none;border:0;color:var(--text);font-size:25px}
+.modal-image {
+  max-width: 100%;
+  max-height: 80vh;
+  display: block;
+  margin: 0 auto;
+  border-radius: 12px;
+  object-fit: contain;
+}
 .notice{
   margin:12px 0;padding:12px;border-radius:10px;
   background:#263c2c;color:var(--green);font-size:14px;
@@ -279,6 +288,18 @@ footer{text-align:center;color:var(--muted);padding:35px 15px;font-size:13px}
   </div>
 </div>
 
+<div class="modal hidden" id="imageModal">
+  <div class="modal-box" style="max-width:800px;text-align:center;">
+    <div class="modal-head">
+      <h2>Kép megtekintése</h2>
+      <button class="close" type="button" onclick="closeImageModal()">×</button>
+    </div>
+    <div style="margin-top:15px;">
+      <img id="fullSizeImage" class="modal-image" src="" alt="Teljes méretű kép">
+    </div>
+  </div>
+</div>
+
 <script>
 // 1. SUPABASE ADATOK
 const SUPABASE_URL = "https://dsmnxydripaymqgydfjm.supabase.co";
@@ -354,6 +375,14 @@ function openAuth(){
   $("authModal").classList.remove("hidden");
 }
 function closeAuth(){$("authModal").classList.add("hidden")}
+function openImageModal(url){
+  $("fullSizeImage").src = url;
+  $("imageModal").classList.remove("hidden");
+}
+function closeImageModal(){
+  $("imageModal").classList.add("hidden");
+  $("fullSizeImage").src = "";
+}
 function setAuthMode(mode){
   authMode=mode;
   $("authTitle").textContent=mode==="login"?"Belépés":"Regisztráció";
@@ -390,8 +419,10 @@ function renderListings(){
   filtered.forEach(item=>{
     const card=document.createElement("article");
     card.className="listing";
-    const img=item.image_path
-      ? `<img src="${escapeHTML(db.storage.from("listing-photos").getPublicUrl(item.image_path).data.publicUrl)}" alt="Hirdetés képe" loading="lazy">`
+    
+    const imageUrl = item.image_path ? db.storage.from("listing-photos").getPublicUrl(item.image_path).data.publicUrl : null;
+    const img=imageUrl
+      ? `<img src="${escapeHTML(imageUrl)}" alt="Hirdetés képe" loading="lazy" data-fullimg>`
       : `<div style="height:190px;display:grid;place-items:center;background:#20372a;color:#a6b9a8;font-size:42px">⌕</div>`;
     
     let footerButtons = `<button class="btn small" type="button" data-contact="${escapeHTML(item.id)}">Kapcsolat</button>`;
@@ -415,6 +446,9 @@ function renderListings(){
         </div>
       </div>`;
     
+    const imgEl = card.querySelector("[data-fullimg]");
+    if(imgEl) imgEl.addEventListener("click", () => openImageModal(imageUrl));
+
     const contactBtn = card.querySelector("[data-contact]");
     if(contactBtn) contactBtn.addEventListener("click",()=>contactOwner(item));
     
@@ -435,7 +469,6 @@ $("authForm").addEventListener("submit",async e=>{
   $("authSubmit").disabled=true;
   try{
     if(authMode==="signup"){
-      // Megerősítő email küldéséhez a redirectTo beállítása ajánlott Supabase-ben
       const {data,error}=await db.auth.signUp({
         email,
         password,
@@ -582,7 +615,6 @@ async function openConversation(convId){
 async function loadMessages(convId){
   const {data,error}=await db.from("messages").select("*").eq("conversation_id",convId).order("created_at",{ascending:true});
   if(error){console.error(error);return}
-  const box=$("messagesContainer"); // Ha van ilyen vagy chatMessages
   const chatMessagesBox = $("chatMessages");
   if(chatMessagesBox){
     chatMessagesBox.innerHTML="";
