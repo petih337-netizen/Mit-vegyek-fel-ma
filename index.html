@@ -282,6 +282,9 @@ footer{text-align:center;color:var(--muted);padding:35px 15px;font-size:13px}
       <input id="authEmail" type="email" required autocomplete="email">
       <label>Jelszó</label>
       <input id="authPassword" type="password" required minlength="6" autocomplete="current-password">
+            <div style="text-align: right; margin-top: 6px;">
+        <button type="button" onclick="handleForgotPassword()" style="background: none; border: none; color: var(--gold); font-size: 12px; cursor: pointer; padding: 0;">Elfelejtetted a jelszavad?</button>
+            </div>
       
       <!-- Jogi pipák regisztrációhoz -->
       <div id="legalCheckboxes" style="margin: 15px 0; font-size: 13px; text-align: left; display: none;">
