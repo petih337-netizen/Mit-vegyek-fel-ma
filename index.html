@@ -278,8 +278,10 @@ footer{text-align:center;color:var(--muted);padding:35px 15px;font-size:13px}
       <button class="btn ghost small" type="button" onclick="setAuthMode('signup')">Regisztráció</button>
     </div>
     <form id="authForm">
-      <label id="emailLabel">E-mail-cím</label>
-      <input id="authEmail" type="email" required autocomplete="email">
+      <div>
+        <label id="emailLabel">E-mail-cím</label>
+        <input id="authEmail" type="email" required autocomplete="email">
+      </div>
       
       <label id="passwordLabel">Jelszó</label>
       <input id="authPassword" type="password" required minlength="6" autocomplete="current-password">
@@ -405,8 +407,8 @@ function closeImageModal(){
 
 function setAuthMode(mode){
   authMode = mode;
-  $("authTitle").textContent = mode === "login" ? "Belépés" : "Regisztráció";
-  $("authSubmit").textContent = mode === "login" ? "Belépés" : "Regisztráció";
+  $("authTitle").textContent = mode === "login" ? "Belépés" : mode === "signup" ? "Regisztráció" : "Új jelszó megadása";
+  $("authSubmit").textContent = mode === "login" ? "Belépés" : mode === "signup" ? "Regisztráció" : "Jelszó mentése";
   $("authPassword").autocomplete = mode === "login" ? "current-password" : "new-password";
   clearNotice("authNotice");
   
@@ -414,11 +416,9 @@ function setAuthMode(mode){
   const submitBtn = $("authSubmit");
   const authTabs = $("authTabs");
   const forgotWrapper = $("forgotWrapper");
-  const emailField = $("authEmail").parentElement;
+  const emailField = $("authEmail").closest("div");
   
   if(mode === "update_password"){
-    $("authTitle").textContent = "Új jelszó megadása";
-    $("authSubmit").textContent = "Jelszó mentése";
     if(authTabs) authTabs.style.display = "none";
     if(forgotWrapper) forgotWrapper.style.display = "none";
     if(emailField) emailField.style.display = "none";
@@ -622,7 +622,7 @@ async function logout(){
 
 db.auth.onAuthStateChange(async (event, session) => {
   if (event === "PASSWORD_RECOVERY") {
-    openAuth();
+    $("authModal").classList.remove("hidden");
     setAuthMode("update_password");
     notice("authNotice", "Kérjük, add meg az új jelszavadat!");
   } else {
