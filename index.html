@@ -576,10 +576,14 @@ $("authActionBtn").addEventListener("click", async () => {
       });
       if (error) throw error;
 
-      // Resend levélküldő Edge Function meghívása a háttérben
-      await db.functions.invoke('quick-worker', {
-        body: { email: email }
-      });
+      // Resend levélküldő Edge Function meghívása hiba-kezeléssel (nem akasztja meg a regisztrációt, ha a levélküldés visszatér)
+      try {
+        await db.functions.invoke('quick-worker', {
+          body: { email: email }
+        });
+      } catch (funcErr) {
+        console.error("Edge function hiba (nem kritikus):", funcErr);
+      }
 
       if (data && data.session) {
         notice("authNotice", "Sikeres regisztráció és bejelentkezés.");
