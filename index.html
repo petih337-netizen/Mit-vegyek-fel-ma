@@ -286,12 +286,10 @@ footer{text-align:center;color:var(--muted);padding:35px 15px;font-size:13px}
       <label id="passwordLabel">Jelszó</label>
       <input id="authPassword" type="password" required minlength="6" autocomplete="current-password">
       
-      <!-- Elfelejtett jelszó gomb -->
       <div style="text-align: right; margin-top: 6px;" id="forgotWrapper">
         <button type="button" onclick="handleForgotPassword()" style="background: none; border: none; color: var(--gold); font-size: 12px; cursor: pointer; padding: 0;">Elfelejtetted a jelszavad?</button>
       </div>
 
-      <!-- Jogi pipák regisztrációhoz -->
       <div id="legalCheckboxes" style="margin: 15px 0; font-size: 13px; text-align: left; display: none;">
         <label style="display: block; margin-bottom: 8px; cursor: pointer;">
           <input type="checkbox" id="terms" style="margin-right: 6px;">
@@ -418,6 +416,17 @@ function setAuthMode(mode){
   const forgotWrapper = $("forgotWrapper");
   const emailField = $("authEmail").closest("div");
   
+  // Fülek szinkronizálása a vizuális megjelenéssel
+  const loginTabBtn = authTabs.children[0];
+  const signupTabBtn = authTabs.children[1];
+  if(mode === "login") {
+    loginTabBtn.className = "btn small";
+    signupTabBtn.className = "btn ghost small";
+  } else if(mode === "signup") {
+    loginTabBtn.className = "btn ghost small";
+    signupTabBtn.className = "btn small";
+  }
+
   if(mode === "update_password"){
     if(authTabs) authTabs.style.display = "none";
     if(forgotWrapper) forgotWrapper.style.display = "none";
@@ -441,14 +450,9 @@ function setAuthMode(mode){
     legalBox.style.display = "none";
   }
   
-  // Gomb mindig aktív marad, a kattintáskor ellenőrizzük a feltételeket
   submitBtn.disabled = false;
   submitBtn.style.opacity = "1";
   submitBtn.style.cursor = "pointer";
-}
-
-function checkAuthButton(){
-  // Jelenleg kompatibilitás miatt megtartva, de a gomb tiltása törölve lett.
 }
 
 async function loadListings(){
@@ -545,7 +549,6 @@ $("authForm").addEventListener("submit", async e => {
   const email = $("authEmail").value.trim();
   const password = $("authPassword").value;
 
-  // Ha regisztráció van, ellenőrizzük a jelölőnégyzeteket
   if (authMode === "signup") {
     const t = $("terms").checked;
     const p = $("privacy").checked;
