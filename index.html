@@ -437,30 +437,18 @@ function setAuthMode(mode){
 
   if(mode === "signup"){
     legalBox.style.display = "block";
-    checkAuthButton();
   } else {
     legalBox.style.display = "none";
-    submitBtn.disabled = false;
-    submitBtn.style.opacity = "1";
-    submitBtn.style.cursor = "pointer";
   }
+  
+  // Gomb mindig aktív marad, a kattintáskor ellenőrizzük a feltételeket
+  submitBtn.disabled = false;
+  submitBtn.style.opacity = "1";
+  submitBtn.style.cursor = "pointer";
 }
 
 function checkAuthButton(){
-  if(authMode === "signup"){
-    const t = $("terms").checked;
-    const p = $("privacy").checked;
-    const btn = $("authSubmit");
-    if(t && p){
-      btn.disabled = false;
-      btn.style.opacity = "1";
-      btn.style.cursor = "pointer";
-    } else {
-      btn.disabled = true;
-      btn.style.opacity = "0.5";
-      btn.style.cursor = "not-allowed";
-    }
-  }
+  // Jelenleg kompatibilitás miatt megtartva, de a gomb tiltása törölve lett.
 }
 
 async function loadListings(){
@@ -551,14 +539,27 @@ async function handleForgotPassword() {
   }
 }
 
-$("authForm").addEventListener("submit",async e=>{
-  e.preventDefault();clearNotice("authNotice");
-  const email=$("authEmail").value.trim();
-  const password=$("authPassword").value;
-  $("authSubmit").disabled=true;
-  try{
-    if(authMode==="signup"){
-      const {data,error}=await db.auth.signUp({
+$("authForm").addEventListener("submit", async e => {
+  e.preventDefault(); 
+  clearNotice("authNotice");
+  const email = $("authEmail").value.trim();
+  const password = $("authPassword").value;
+
+  // Ha regisztráció van, ellenőrizzük a jelölőnégyzeteket
+  if (authMode === "signup") {
+    const t = $("terms").checked;
+    const p = $("privacy").checked;
+    if (!t || !p) {
+      notice("authNotice", "A regisztrációhoz el kell fogadnod az ÁSZF-et és az Adatvédelmi Tájékoztatót!", true);
+      return;
+    }
+  }
+
+  const submitBtn = $("authSubmit");
+  submitBtn.disabled = true;
+  try {
+    if (authMode === "signup") {
+      const { data, error } = await db.auth.signUp({
         email,
         password,
         options: { 
@@ -569,29 +570,29 @@ $("authForm").addEventListener("submit",async e=>{
           }
         }
       });
-      if(error)throw error;
-      if(data.session){
-        notice("authNotice","Sikeres regisztráció és bejelentkezés.");
-      }else{
-        notice("authNotice","Regisztráció sikeres! Kérjük, ellenőrizd az e-mail-fiókodat, és erősítsd meg a regisztrációt a kapott linken.");
+      if (error) throw error;
+      if (data.session) {
+        notice("authNotice", "Sikeres regisztráció és bejelentkezés.");
+      } else {
+        notice("authNotice", "Regisztráció sikeres! Kérjük, ellenőrizd az e-mail-fiókodat, és erősítsd meg a regisztrációt a kapott linken.");
       }
-    }else if(authMode==="update_password"){
-      const {error}=await db.auth.updateUser({ password: password });
-      if(error)throw error;
-      notice("authNotice","Sikeres jelszóváltoztatás! Mostantól az új jelszóval léphetsz be.");
-      setTimeout(()=>{
+    } else if (authMode === "update_password") {
+      const { error } = await db.auth.updateUser({ password: password });
+      if (error) throw error;
+      notice("authNotice", "Sikeres jelszóváltoztatás! Mostantól az új jelszóval léphetsz be.");
+      setTimeout(() => {
         closeAuth();
         setAuthMode("login");
       }, 2000);
-    }else{
-      const {error}=await db.auth.signInWithPassword({email,password});
-      if(error)throw error;
+    } else {
+      const { error } = await db.auth.signInWithPassword({ email, password });
+      if (error) throw error;
       closeAuth();
     }
-  }catch(err){notice("authNotice",err.message||"Hiba történt.",true)}
-  finally{
-    if(authMode === "login" || authMode === "update_password") $("authSubmit").disabled=false;
-    else checkAuthButton();
+  } catch (err) {
+    notice("authNotice", err.message || "Hiba történt.", true);
+  } finally {
+    submitBtn.disabled = false;
   }
 });
 
@@ -806,9 +807,6 @@ $("listingForm").addEventListener("submit",async e=>{
   }catch(err){notice("listingNotice",err.message||"Sikertelen mentés.",true)}
   finally{submitBtn.disabled=false}
 });
-
-$("terms").addEventListener("change", checkAuthButton);
-$("privacy").addEventListener("change", checkAuthButton);
 
 loadListings();
 </script>
