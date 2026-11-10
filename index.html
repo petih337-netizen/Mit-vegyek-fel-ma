@@ -533,7 +533,7 @@ async function handleForgotPassword() {
   }
   try {
     const { error } = await db.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin,
+      redirectTo: window.location.href,
     });
     if(error) throw error;
     notice("authNotice", "A jelszó-visszaállító e-mailt elküldtük. Kérjük, ellenőrizd a postafiókodat!");
@@ -566,19 +566,16 @@ $("authActionBtn").addEventListener("click", async () => {
   
   try {
     if (authMode === "signup") {
+      const redirectUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
       const { data, error } = await db.auth.signUp({
-        email,
-        password,
+        email: email,
+        password: password,
         options: { 
-          emailRedirectTo: window.location.origin,
-          data: {
-            accepted_terms_at: new Date().toISOString(),
-            accepted_privacy_at: new Date().toISOString()
-          }
+          emailRedirectTo: redirectUrl
         }
       });
       if (error) throw error;
-      if (data.session) {
+      if (data && data.session) {
         notice("authNotice", "Sikeres regisztráció és bejelentkezés.");
       } else {
         notice("authNotice", "Regisztráció sikeres! Kérjük, ellenőrizd az e-mail-fiókodat, és erősítsd meg a regisztrációt a kapott linken.");
@@ -597,7 +594,8 @@ $("authActionBtn").addEventListener("click", async () => {
       closeAuth();
     }
   } catch (err) {
-    notice("authNotice", err.message || "Hiba történt.", true);
+    console.error("Auth hiba:", err);
+    notice("authNotice", err.message || "Hálózati vagy hitelesítési hiba történt.", true);
   } finally {
     submitBtn.disabled = false;
   }
