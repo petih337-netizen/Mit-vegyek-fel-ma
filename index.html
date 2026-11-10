@@ -533,11 +533,12 @@ async function handleForgotPassword() {
   }
   try {
     const { error } = await db.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.href,
+      redirectTo: window.location.protocol + "//" + window.location.host + window.location.pathname,
     });
     if(error) throw error;
     notice("authNotice", "A jelszó-visszaállító e-mailt elküldtük. Kérjük, ellenőrizd a postafiókodat!");
   } catch(err) {
+    console.error("Jelszó visszaállítás hiba:", err);
     notice("authNotice", err.message || "Hiba történt a kérés küldésekor.", true);
   }
 }
@@ -576,19 +577,10 @@ $("authActionBtn").addEventListener("click", async () => {
       });
       if (error) throw error;
 
-      // Resend levélküldő Edge Function meghívása hiba-kezeléssel (nem akasztja meg a regisztrációt, ha a levélküldés visszatér)
-      try {
-        await db.functions.invoke('quick-worker', {
-          body: { email: email }
-        });
-      } catch (funcErr) {
-        console.error("Edge function hiba (nem kritikus):", funcErr);
-      }
-
       if (data && data.session) {
         notice("authNotice", "Sikeres regisztráció és bejelentkezés.");
       } else {
-        notice("authNotice", "Regisztráció sikeres! Az üdvözlő e-mailt elküldtük a megadott címre.");
+        notice("authNotice", "Regisztráció sikeres! Kérjük, ellenőrizd az e-mail fiókodat a megerősítő linkért.");
       }
     } else if (authMode === "update_password") {
       const { error } = await db.auth.updateUser({ password: password });
