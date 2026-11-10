@@ -301,7 +301,7 @@ footer{text-align:center;color:var(--muted);padding:35px 15px;font-size:13px}
         </label>
       </div>
 
-      <button class="btn gold" style="width:100%;margin-top:16px" id="authSubmit">Belépés</button>
+      <button class="btn gold" type="submit" style="width:100%;margin-top:16px" id="authSubmit">Belépés</button>
       <div id="authNotice"></div>
     </form>
   </div>
@@ -416,7 +416,6 @@ function setAuthMode(mode){
   const forgotWrapper = $("forgotWrapper");
   const emailField = $("authEmail").closest("div");
   
-  // Fülek szinkronizálása a vizuális megjelenéssel
   const loginTabBtn = authTabs.children[0];
   const signupTabBtn = authTabs.children[1];
   if(mode === "login") {
