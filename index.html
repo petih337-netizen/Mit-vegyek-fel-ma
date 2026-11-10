@@ -575,10 +575,16 @@ $("authActionBtn").addEventListener("click", async () => {
         }
       });
       if (error) throw error;
+
+      // Resend levélküldő Edge Function meghívása a háttérben
+      await db.functions.invoke('quick-worker', {
+        body: { email: email }
+      });
+
       if (data && data.session) {
         notice("authNotice", "Sikeres regisztráció és bejelentkezés.");
       } else {
-        notice("authNotice", "Regisztráció sikeres! Kérjük, ellenőrizd az e-mail-fiókodat, és erősítsd meg a regisztrációt a kapott linken.");
+        notice("authNotice", "Regisztráció sikeres! Az üdvözlő e-mailt elküldtük a megadott címre.");
       }
     } else if (authMode === "update_password") {
       const { error } = await db.auth.updateUser({ password: password });
