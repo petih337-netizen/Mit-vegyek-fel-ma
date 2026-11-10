@@ -277,7 +277,7 @@ footer{text-align:center;color:var(--muted);padding:35px 15px;font-size:13px}
       <button class="btn small" type="button" onclick="setAuthMode('login')">Belépés</button>
       <button class="btn ghost small" type="button" onclick="setAuthMode('signup')">Regisztráció</button>
     </div>
-    <form id="authForm">
+    <div id="authForm">
       <div>
         <label id="emailLabel">E-mail-cím</label>
         <input id="authEmail" type="email" required autocomplete="email">
@@ -301,9 +301,9 @@ footer{text-align:center;color:var(--muted);padding:35px 15px;font-size:13px}
         </label>
       </div>
 
-      <button class="btn gold" type="submit" style="width:100%;margin-top:16px" id="authSubmit">Belépés</button>
+      <button class="btn gold" type="button" style="width:100%;margin-top:16px" id="authActionBtn">Belépés</button>
       <div id="authNotice"></div>
-    </form>
+    </div>
   </div>
 </div>
 
@@ -406,12 +406,12 @@ function closeImageModal(){
 function setAuthMode(mode){
   authMode = mode;
   $("authTitle").textContent = mode === "login" ? "Belépés" : mode === "signup" ? "Regisztráció" : "Új jelszó megadása";
-  $("authSubmit").textContent = mode === "login" ? "Belépés" : mode === "signup" ? "Regisztráció" : "Jelszó mentése";
+  $("authActionBtn").textContent = mode === "login" ? "Belépés" : mode === "signup" ? "Regisztráció" : "Jelszó mentése";
   $("authPassword").autocomplete = mode === "login" ? "current-password" : "new-password";
   clearNotice("authNotice");
   
   const legalBox = $("legalCheckboxes");
-  const submitBtn = $("authSubmit");
+  const submitBtn = $("authActionBtn");
   const authTabs = $("authTabs");
   const forgotWrapper = $("forgotWrapper");
   const emailField = $("authEmail").closest("div");
@@ -542,11 +542,15 @@ async function handleForgotPassword() {
   }
 }
 
-$("authForm").addEventListener("submit", async e => {
-  e.preventDefault(); 
+$("authActionBtn").addEventListener("click", async () => {
   clearNotice("authNotice");
   const email = $("authEmail").value.trim();
   const password = $("authPassword").value;
+
+  if (!email || !password) {
+    notice("authNotice", "Kérjük, töltsd ki az e-mail és jelszó mezőket!", true);
+    return;
+  }
 
   if (authMode === "signup") {
     const t = $("terms").checked;
@@ -557,8 +561,9 @@ $("authForm").addEventListener("submit", async e => {
     }
   }
 
-  const submitBtn = $("authSubmit");
+  const submitBtn = $("authActionBtn");
   submitBtn.disabled = true;
+  
   try {
     if (authMode === "signup") {
       const { data, error } = await db.auth.signUp({
